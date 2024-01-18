@@ -5,7 +5,8 @@
 >
   <app-example-viewer codeFolder="geo/search" configFolder="environments">
     <span *ngIf="!isTouchScreen" title="Details">
-      Pointer activated: {{ igoSearchPointerSummaryEnabled }} (F2 activate/deactivate the pointer location).
+      Pointer activated: {{ igoSearchPointerSummaryEnabled }} (F2
+      activate/deactivate the pointer location).
     </span>
     <igo-map-browser
       #mapBrowser
@@ -40,6 +41,7 @@
           onReverseCoordsFormatStatusChange($event)
         "
         (selectElement)="onSelectElement($event)"
+        (keydown.enter)="onSelectElement($event)"
       >
       </igo-search-bar>
 
