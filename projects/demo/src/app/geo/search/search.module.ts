@@ -5,7 +5,7 @@ import {
   IgoContextMenuModule,
   IgoPanelModule
 } from '@igo2/common';
-import { IgoMessageModule, IgoLanguageModule } from '@igo2/core';
+import { IgoMessageModule } from '@igo2/core';
 import {
   IgoFeatureModule,
   IgoMapModule,
@@ -38,7 +38,6 @@ import { AppSearchComponent } from './search.component';
     IgoAppSearchModule,
     IgoActionbarModule,
     IgoContextMenuModule,
-    IgoLanguageModule,
     IgoFeatureModule
   ],
   exports: [AppSearchComponent],

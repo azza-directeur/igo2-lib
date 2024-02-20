@@ -21,7 +21,7 @@ import { BehaviorSubject, Subscription, timer } from 'rxjs';
 import { debounce, distinctUntilChanged } from 'rxjs/operators';
 
 import { FEATURE, Feature, FeatureMotion } from '../../feature';
-import { LAYER, LayerOptions, LayerService } from '../../layer';
+import { LayerService } from '../../layer';
 import { IgoMap } from '../../map';
 import { SearchSourceService } from '../shared/search-source.service';
 import { SEARCH_TYPES } from '../shared/search.enums';
@@ -122,9 +122,7 @@ export class SearchBarComponent implements OnInit, OnDestroy {
    * Event emitted when the coords format setting is changed
    */
   @Output() reverseSearchCoordsFormatStatus = new EventEmitter<boolean>();
-  /**
-   * test
-   */
+
   @Input() map: IgoMap;
   /**
    * Search term
@@ -493,20 +491,17 @@ export class SearchBarComponent implements OnInit, OnDestroy {
     }
   }
 
-
   /**
-   * When the user clicks on the magnifying glass and
-   * this find the first object on the map
+   * If we click on the magnifying glass it will look for
+   * the best compatible result to show it on the map
    */
 
   selectFirstElement() {
-    // look for the two highest score results
     const results = this.store.all().sort((res1, res2) => {
       return (res1.meta.score - res2.meta.score) * -1;
     });
 
-    //Condition to discriminate whether the search value corresponds to a feature or a layer,
-    // it is necessary to focus and display the layer on the map
+    //Take the first element (feature or layer) to make a focus or view it on the map
     if (results) {
       const result = results[0];
       this.store.state.update(result, { focused: true, selected: true }, true);
@@ -514,14 +509,10 @@ export class SearchBarComponent implements OnInit, OnDestroy {
       if (result.meta.dataType === FEATURE) {
         const feature = (result as SearchResult<Feature>).data;
         this.map.searchResultsOverlay.setFeatures(
-          [feature] satisfies Feature[],
+          [feature],
           FeatureMotion.Default
         );
-      } else if (result.meta.dataType === LAYER) {
-        const layerOptions = (result as SearchResult<LayerOptions>).data;
-        if (layerOptions.sourceOptions.optionsFromApi === undefined) {
-          layerOptions.sourceOptions.optionsFromApi = true;
-        }
+      } else {
         this.layerService.createAsyncLayer(result.data).subscribe((layer) => {
           this.map.addLayer(layer);
         });
