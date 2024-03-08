@@ -960,6 +960,7 @@ html {
   --mat-switch-hidden-track-transition: transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);
   --mat-switch-track-outline-width: 1px;
   --mat-switch-track-outline-color: transparent;
+  --mat-switch-selected-track-outline-width: 1px;
   --mat-switch-disabled-unselected-track-outline-width: 1px;
   --mat-switch-disabled-unselected-track-outline-color: transparent;
 }
@@ -1053,8 +1054,8 @@ html {
   --mdc-form-field-label-text-color: white;
 }
 .mat-mdc-radio-button.mat-primary {
-  --mdc-radio-disabled-selected-icon-color: #fff;
-  --mdc-radio-disabled-unselected-icon-color: #fff;
+  --mdc-radio-disabled-selected-icon-color: white;
+  --mdc-radio-disabled-unselected-icon-color: white;
   --mdc-radio-unselected-hover-icon-color: #eeeeee;
   --mdc-radio-unselected-icon-color: rgba(255, 255, 255, 0.54);
   --mdc-radio-unselected-pressed-icon-color: rgba(255, 255, 255, 0.54);
@@ -1062,13 +1063,13 @@ html {
   --mdc-radio-selected-hover-icon-color: #607d8b;
   --mdc-radio-selected-icon-color: #607d8b;
   --mdc-radio-selected-pressed-icon-color: #607d8b;
-  --mat-radio-ripple-color: #fff;
+  --mat-radio-ripple-color: white;
   --mat-radio-checked-ripple-color: #607d8b;
   --mat-radio-disabled-label-color: rgba(255, 255, 255, 0.5);
 }
 .mat-mdc-radio-button.mat-accent {
-  --mdc-radio-disabled-selected-icon-color: #fff;
-  --mdc-radio-disabled-unselected-icon-color: #fff;
+  --mdc-radio-disabled-selected-icon-color: white;
+  --mdc-radio-disabled-unselected-icon-color: white;
   --mdc-radio-unselected-hover-icon-color: #eeeeee;
   --mdc-radio-unselected-icon-color: rgba(255, 255, 255, 0.54);
   --mdc-radio-unselected-pressed-icon-color: rgba(255, 255, 255, 0.54);
@@ -1076,13 +1077,13 @@ html {
   --mdc-radio-selected-hover-icon-color: #ff4081;
   --mdc-radio-selected-icon-color: #ff4081;
   --mdc-radio-selected-pressed-icon-color: #ff4081;
-  --mat-radio-ripple-color: #fff;
+  --mat-radio-ripple-color: white;
   --mat-radio-checked-ripple-color: #ff4081;
   --mat-radio-disabled-label-color: rgba(255, 255, 255, 0.5);
 }
 .mat-mdc-radio-button.mat-warn {
-  --mdc-radio-disabled-selected-icon-color: #fff;
-  --mdc-radio-disabled-unselected-icon-color: #fff;
+  --mdc-radio-disabled-selected-icon-color: white;
+  --mdc-radio-disabled-unselected-icon-color: white;
   --mdc-radio-unselected-hover-icon-color: #eeeeee;
   --mdc-radio-unselected-icon-color: rgba(255, 255, 255, 0.54);
   --mdc-radio-unselected-pressed-icon-color: rgba(255, 255, 255, 0.54);
@@ -1090,7 +1091,7 @@ html {
   --mdc-radio-selected-hover-icon-color: #ff5722;
   --mdc-radio-selected-icon-color: #ff5722;
   --mdc-radio-selected-pressed-icon-color: #ff5722;
-  --mat-radio-ripple-color: #fff;
+  --mat-radio-ripple-color: white;
   --mat-radio-checked-ripple-color: #ff5722;
   --mat-radio-disabled-label-color: rgba(255, 255, 255, 0.5);
 }
@@ -1253,8 +1254,8 @@ html {
 
 .mdc-list-item__start,
 .mdc-list-item__end {
-  --mdc-radio-disabled-selected-icon-color: #fff;
-  --mdc-radio-disabled-unselected-icon-color: #fff;
+  --mdc-radio-disabled-selected-icon-color: white;
+  --mdc-radio-disabled-unselected-icon-color: white;
   --mdc-radio-unselected-hover-icon-color: #eeeeee;
   --mdc-radio-unselected-icon-color: rgba(255, 255, 255, 0.54);
   --mdc-radio-unselected-pressed-icon-color: rgba(255, 255, 255, 0.54);
@@ -1266,8 +1267,8 @@ html {
 
 .mat-accent .mdc-list-item__start,
 .mat-accent .mdc-list-item__end {
-  --mdc-radio-disabled-selected-icon-color: #fff;
-  --mdc-radio-disabled-unselected-icon-color: #fff;
+  --mdc-radio-disabled-selected-icon-color: white;
+  --mdc-radio-disabled-unselected-icon-color: white;
   --mdc-radio-unselected-hover-icon-color: #eeeeee;
   --mdc-radio-unselected-icon-color: rgba(255, 255, 255, 0.54);
   --mdc-radio-unselected-pressed-icon-color: rgba(255, 255, 255, 0.54);
@@ -1279,8 +1280,8 @@ html {
 
 .mat-warn .mdc-list-item__start,
 .mat-warn .mdc-list-item__end {
-  --mdc-radio-disabled-selected-icon-color: #fff;
-  --mdc-radio-disabled-unselected-icon-color: #fff;
+  --mdc-radio-disabled-selected-icon-color: white;
+  --mdc-radio-disabled-unselected-icon-color: white;
   --mdc-radio-unselected-hover-icon-color: #eeeeee;
   --mdc-radio-unselected-icon-color: rgba(255, 255, 255, 0.54);
   --mdc-radio-unselected-pressed-icon-color: rgba(255, 255, 255, 0.54);
@@ -1293,7 +1294,7 @@ html {
 .mat-mdc-list-option {
   --mdc-checkbox-disabled-selected-icon-color: rgba(255, 255, 255, 0.38);
   --mdc-checkbox-disabled-unselected-icon-color: rgba(255, 255, 255, 0.38);
-  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-checkmark-color: white;
   --mdc-checkbox-selected-focus-icon-color: #607d8b;
   --mdc-checkbox-selected-hover-icon-color: #607d8b;
   --mdc-checkbox-selected-icon-color: #607d8b;
@@ -1313,7 +1314,7 @@ html {
 .mat-mdc-list-option.mat-accent {
   --mdc-checkbox-disabled-selected-icon-color: rgba(255, 255, 255, 0.38);
   --mdc-checkbox-disabled-unselected-icon-color: rgba(255, 255, 255, 0.38);
-  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-checkmark-color: white;
   --mdc-checkbox-selected-focus-icon-color: #ff4081;
   --mdc-checkbox-selected-hover-icon-color: #ff4081;
   --mdc-checkbox-selected-icon-color: #ff4081;
@@ -1333,7 +1334,7 @@ html {
 .mat-mdc-list-option.mat-warn {
   --mdc-checkbox-disabled-selected-icon-color: rgba(255, 255, 255, 0.38);
   --mdc-checkbox-disabled-unselected-icon-color: rgba(255, 255, 255, 0.38);
-  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-checkmark-color: white;
   --mdc-checkbox-selected-focus-icon-color: #ff5722;
   --mdc-checkbox-selected-hover-icon-color: #ff5722;
   --mdc-checkbox-selected-icon-color: #ff5722;
@@ -1441,7 +1442,7 @@ html {
 .mat-mdc-tab-group, .mat-mdc-tab-nav-bar {
   --mdc-tab-indicator-active-indicator-color: #607d8b;
   --mat-tab-header-disabled-ripple-color: rgba(255, 255, 255, 0.5);
-  --mat-tab-header-pagination-icon-color: #fff;
+  --mat-tab-header-pagination-icon-color: white;
   --mat-tab-header-inactive-label-text-color: rgba(255, 255, 255, 0.6);
   --mat-tab-header-active-label-text-color: #607d8b;
   --mat-tab-header-active-ripple-color: #607d8b;
@@ -1456,7 +1457,7 @@ html {
 .mat-mdc-tab-group.mat-accent, .mat-mdc-tab-nav-bar.mat-accent {
   --mdc-tab-indicator-active-indicator-color: #ff4081;
   --mat-tab-header-disabled-ripple-color: rgba(255, 255, 255, 0.5);
-  --mat-tab-header-pagination-icon-color: #fff;
+  --mat-tab-header-pagination-icon-color: white;
   --mat-tab-header-inactive-label-text-color: rgba(255, 255, 255, 0.6);
   --mat-tab-header-active-label-text-color: #ff4081;
   --mat-tab-header-active-ripple-color: #ff4081;
@@ -1471,7 +1472,7 @@ html {
 .mat-mdc-tab-group.mat-warn, .mat-mdc-tab-nav-bar.mat-warn {
   --mdc-tab-indicator-active-indicator-color: #ff5722;
   --mat-tab-header-disabled-ripple-color: rgba(255, 255, 255, 0.5);
-  --mat-tab-header-pagination-icon-color: #fff;
+  --mat-tab-header-pagination-icon-color: white;
   --mat-tab-header-inactive-label-text-color: rgba(255, 255, 255, 0.6);
   --mat-tab-header-active-label-text-color: #ff5722;
   --mat-tab-header-active-ripple-color: #ff5722;
@@ -1521,7 +1522,7 @@ html {
 html {
   --mdc-checkbox-disabled-selected-icon-color: rgba(255, 255, 255, 0.38);
   --mdc-checkbox-disabled-unselected-icon-color: rgba(255, 255, 255, 0.38);
-  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-checkmark-color: white;
   --mdc-checkbox-selected-focus-icon-color: #ff4081;
   --mdc-checkbox-selected-hover-icon-color: #ff4081;
   --mdc-checkbox-selected-icon-color: #ff4081;
@@ -1545,7 +1546,7 @@ html {
 .mat-mdc-checkbox.mat-primary {
   --mdc-checkbox-disabled-selected-icon-color: rgba(255, 255, 255, 0.38);
   --mdc-checkbox-disabled-unselected-icon-color: rgba(255, 255, 255, 0.38);
-  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-checkmark-color: white;
   --mdc-checkbox-selected-focus-icon-color: #607d8b;
   --mdc-checkbox-selected-hover-icon-color: #607d8b;
   --mdc-checkbox-selected-icon-color: #607d8b;
@@ -1564,7 +1565,7 @@ html {
 .mat-mdc-checkbox.mat-warn {
   --mdc-checkbox-disabled-selected-icon-color: rgba(255, 255, 255, 0.38);
   --mdc-checkbox-disabled-unselected-icon-color: rgba(255, 255, 255, 0.38);
-  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-checkmark-color: white;
   --mdc-checkbox-selected-focus-icon-color: #ff5722;
   --mdc-checkbox-selected-hover-icon-color: #ff5722;
   --mdc-checkbox-selected-icon-color: #ff5722;
@@ -1620,26 +1621,26 @@ html {
 }
 
 html {
-  --mdc-text-button-label-text-color: #fff;
+  --mdc-text-button-label-text-color: white;
   --mdc-text-button-disabled-label-text-color: rgba(255, 255, 255, 0.5);
-  --mat-text-button-state-layer-color: #fff;
-  --mat-text-button-disabled-state-layer-color: #fff;
+  --mat-text-button-state-layer-color: white;
+  --mat-text-button-disabled-state-layer-color: white;
   --mat-text-button-ripple-color: rgba(255, 255, 255, 0.1);
   --mat-text-button-hover-state-layer-opacity: 0.08;
   --mat-text-button-focus-state-layer-opacity: 0.24;
   --mat-text-button-pressed-state-layer-opacity: 0.24;
   --mdc-filled-button-container-color: #424242;
-  --mdc-filled-button-label-text-color: #fff;
+  --mdc-filled-button-label-text-color: white;
   --mdc-filled-button-disabled-container-color: rgba(255, 255, 255, 0.12);
   --mdc-filled-button-disabled-label-text-color: rgba(255, 255, 255, 0.5);
-  --mat-filled-button-state-layer-color: #fff;
-  --mat-filled-button-disabled-state-layer-color: #fff;
+  --mat-filled-button-state-layer-color: white;
+  --mat-filled-button-disabled-state-layer-color: white;
   --mat-filled-button-ripple-color: rgba(255, 255, 255, 0.1);
   --mat-filled-button-hover-state-layer-opacity: 0.08;
   --mat-filled-button-focus-state-layer-opacity: 0.24;
   --mat-filled-button-pressed-state-layer-opacity: 0.24;
   --mdc-protected-button-container-color: #424242;
-  --mdc-protected-button-label-text-color: #fff;
+  --mdc-protected-button-label-text-color: white;
   --mdc-protected-button-disabled-container-color: rgba(255, 255, 255, 0.12);
   --mdc-protected-button-disabled-label-text-color: rgba(255, 255, 255, 0.5);
   --mdc-protected-button-container-elevation-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
@@ -1648,18 +1649,18 @@ html {
   --mdc-protected-button-hover-container-elevation-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
   --mdc-protected-button-pressed-container-elevation-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
   --mdc-protected-button-container-shadow-color: #000;
-  --mat-protected-button-state-layer-color: #fff;
-  --mat-protected-button-disabled-state-layer-color: #fff;
+  --mat-protected-button-state-layer-color: white;
+  --mat-protected-button-disabled-state-layer-color: white;
   --mat-protected-button-ripple-color: rgba(255, 255, 255, 0.1);
   --mat-protected-button-hover-state-layer-opacity: 0.08;
   --mat-protected-button-focus-state-layer-opacity: 0.24;
   --mat-protected-button-pressed-state-layer-opacity: 0.24;
   --mdc-outlined-button-disabled-outline-color: rgba(255, 255, 255, 0.12);
   --mdc-outlined-button-disabled-label-text-color: rgba(255, 255, 255, 0.5);
-  --mdc-outlined-button-label-text-color: #fff;
+  --mdc-outlined-button-label-text-color: white;
   --mdc-outlined-button-outline-color: rgba(255, 255, 255, 0.12);
-  --mat-outlined-button-state-layer-color: #fff;
-  --mat-outlined-button-disabled-state-layer-color: #fff;
+  --mat-outlined-button-state-layer-color: white;
+  --mat-outlined-button-disabled-state-layer-color: white;
   --mat-outlined-button-ripple-color: rgba(255, 255, 255, 0.1);
   --mat-outlined-button-hover-state-layer-opacity: 0.08;
   --mat-outlined-button-focus-state-layer-opacity: 0.24;
@@ -1684,39 +1685,39 @@ html {
 
 .mat-mdc-unelevated-button.mat-primary {
   --mdc-filled-button-container-color: #607d8b;
-  --mdc-filled-button-label-text-color: #fff;
-  --mat-filled-button-state-layer-color: #fff;
+  --mdc-filled-button-label-text-color: white;
+  --mat-filled-button-state-layer-color: white;
   --mat-filled-button-ripple-color: rgba(255, 255, 255, 0.1);
 }
 .mat-mdc-unelevated-button.mat-accent {
   --mdc-filled-button-container-color: #ff4081;
-  --mdc-filled-button-label-text-color: #fff;
-  --mat-filled-button-state-layer-color: #fff;
+  --mdc-filled-button-label-text-color: white;
+  --mat-filled-button-state-layer-color: white;
   --mat-filled-button-ripple-color: rgba(255, 255, 255, 0.1);
 }
 .mat-mdc-unelevated-button.mat-warn {
   --mdc-filled-button-container-color: #ff5722;
-  --mdc-filled-button-label-text-color: #fff;
-  --mat-filled-button-state-layer-color: #fff;
+  --mdc-filled-button-label-text-color: white;
+  --mat-filled-button-state-layer-color: white;
   --mat-filled-button-ripple-color: rgba(255, 255, 255, 0.1);
 }
 
 .mat-mdc-raised-button.mat-primary {
   --mdc-protected-button-container-color: #607d8b;
-  --mdc-protected-button-label-text-color: #fff;
-  --mat-protected-button-state-layer-color: #fff;
+  --mdc-protected-button-label-text-color: white;
+  --mat-protected-button-state-layer-color: white;
   --mat-protected-button-ripple-color: rgba(255, 255, 255, 0.1);
 }
 .mat-mdc-raised-button.mat-accent {
   --mdc-protected-button-container-color: #ff4081;
-  --mdc-protected-button-label-text-color: #fff;
-  --mat-protected-button-state-layer-color: #fff;
+  --mdc-protected-button-label-text-color: white;
+  --mat-protected-button-state-layer-color: white;
   --mat-protected-button-ripple-color: rgba(255, 255, 255, 0.1);
 }
 .mat-mdc-raised-button.mat-warn {
   --mdc-protected-button-container-color: #ff5722;
-  --mdc-protected-button-label-text-color: #fff;
-  --mat-protected-button-state-layer-color: #fff;
+  --mdc-protected-button-label-text-color: white;
+  --mat-protected-button-state-layer-color: white;
   --mat-protected-button-ripple-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -1780,8 +1781,8 @@ html {
 html {
   --mdc-icon-button-icon-color: inherit;
   --mdc-icon-button-disabled-icon-color: rgba(255, 255, 255, 0.5);
-  --mat-icon-button-state-layer-color: #fff;
-  --mat-icon-button-disabled-state-layer-color: #fff;
+  --mat-icon-button-state-layer-color: white;
+  --mat-icon-button-disabled-state-layer-color: white;
   --mat-icon-button-ripple-color: rgba(255, 255, 255, 0.1);
   --mat-icon-button-hover-state-layer-opacity: 0.08;
   --mat-icon-button-focus-state-layer-opacity: 0.24;
@@ -1831,8 +1832,8 @@ html {
   --mdc-fab-pressed-container-elevation-shadow: 0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 12px 17px 2px rgba(0, 0, 0, 0.14), 0px 5px 22px 4px rgba(0, 0, 0, 0.12);
   --mdc-fab-container-shadow-color: #000;
   --mat-fab-foreground-color: white;
-  --mat-fab-state-layer-color: #fff;
-  --mat-fab-disabled-state-layer-color: #fff;
+  --mat-fab-state-layer-color: white;
+  --mat-fab-disabled-state-layer-color: white;
   --mat-fab-ripple-color: rgba(255, 255, 255, 0.1);
   --mat-fab-hover-state-layer-opacity: 0.08;
   --mat-fab-focus-state-layer-opacity: 0.24;
@@ -1846,8 +1847,8 @@ html {
   --mdc-fab-small-pressed-container-elevation-shadow: 0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 12px 17px 2px rgba(0, 0, 0, 0.14), 0px 5px 22px 4px rgba(0, 0, 0, 0.12);
   --mdc-fab-small-container-shadow-color: #000;
   --mat-fab-small-foreground-color: white;
-  --mat-fab-small-state-layer-color: #fff;
-  --mat-fab-small-disabled-state-layer-color: #fff;
+  --mat-fab-small-state-layer-color: white;
+  --mat-fab-small-disabled-state-layer-color: white;
   --mat-fab-small-ripple-color: rgba(255, 255, 255, 0.1);
   --mat-fab-small-hover-state-layer-opacity: 0.08;
   --mat-fab-small-focus-state-layer-opacity: 0.24;
@@ -1862,38 +1863,38 @@ html {
 }
 html .mat-mdc-fab.mat-primary {
   --mdc-fab-container-color: #607d8b;
-  --mat-fab-foreground-color: #fff;
-  --mat-fab-state-layer-color: #fff;
+  --mat-fab-foreground-color: white;
+  --mat-fab-state-layer-color: white;
   --mat-fab-ripple-color: rgba(255, 255, 255, 0.1);
 }
 html .mat-mdc-fab.mat-accent {
   --mdc-fab-container-color: #ff4081;
-  --mat-fab-foreground-color: #fff;
-  --mat-fab-state-layer-color: #fff;
+  --mat-fab-foreground-color: white;
+  --mat-fab-state-layer-color: white;
   --mat-fab-ripple-color: rgba(255, 255, 255, 0.1);
 }
 html .mat-mdc-fab.mat-warn {
   --mdc-fab-container-color: #ff5722;
-  --mat-fab-foreground-color: #fff;
-  --mat-fab-state-layer-color: #fff;
+  --mat-fab-foreground-color: white;
+  --mat-fab-state-layer-color: white;
   --mat-fab-ripple-color: rgba(255, 255, 255, 0.1);
 }
 html .mat-mdc-mini-fab.mat-primary {
   --mdc-fab-small-container-color: #607d8b;
-  --mat-fab-small-foreground-color: #fff;
-  --mat-fab-small-state-layer-color: #fff;
+  --mat-fab-small-foreground-color: white;
+  --mat-fab-small-state-layer-color: white;
   --mat-fab-small-ripple-color: rgba(255, 255, 255, 0.1);
 }
 html .mat-mdc-mini-fab.mat-accent {
   --mdc-fab-small-container-color: #ff4081;
-  --mat-fab-small-foreground-color: #fff;
-  --mat-fab-small-state-layer-color: #fff;
+  --mat-fab-small-foreground-color: white;
+  --mat-fab-small-state-layer-color: white;
   --mat-fab-small-ripple-color: rgba(255, 255, 255, 0.1);
 }
 html .mat-mdc-mini-fab.mat-warn {
   --mdc-fab-small-container-color: #ff5722;
-  --mat-fab-small-foreground-color: #fff;
-  --mat-fab-small-state-layer-color: #fff;
+  --mat-fab-small-foreground-color: white;
+  --mat-fab-small-state-layer-color: white;
   --mat-fab-small-ripple-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -2104,7 +2105,7 @@ html {
   --mat-datepicker-calendar-date-in-overlap-range-selected-state-background-color: #46a35e;
   --mat-datepicker-toggle-icon-color: white;
   --mat-datepicker-calendar-body-label-text-color: rgba(255, 255, 255, 0.7);
-  --mat-datepicker-calendar-period-button-text-color: #fff;
+  --mat-datepicker-calendar-period-button-text-color: white;
   --mat-datepicker-calendar-period-button-icon-color: white;
   --mat-datepicker-calendar-navigation-button-icon-color: white;
   --mat-datepicker-calendar-header-divider-color: rgba(255, 255, 255, 0.12);
@@ -2185,6 +2186,8 @@ html {
 
 html {
   --mat-expansion-container-shape: 4px;
+  --mat-expansion-legacy-header-indicator-display: inline-block;
+  --mat-expansion-header-indicator-display: none;
 }
 
 html {
