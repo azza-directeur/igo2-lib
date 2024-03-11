@@ -502,7 +502,7 @@ export class SearchBarComponent implements OnInit, OnDestroy {
     });
 
     //Take the first element (feature or layer) to make a focus or view it on the map
-    if (results) {
+    if (results.length) {
       const result = results[0];
       this.store.state.update(result, { focused: true, selected: true }, true);
 
