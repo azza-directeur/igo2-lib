@@ -19,7 +19,8 @@
       "sourceOptions": {
         "type": "arcgisrest",
         "layer": "0",
-        "url": "https://sampleserver3.arcgisonline.com/ArcGIS/rest/services/Petroleum/KSFields/FeatureServer"
+        "url":
+          "https://sampleserver3.arcgisonline.com/ArcGIS/rest/services/Petroleum/KSFields/FeatureServer"
       }
     },
     {
@@ -27,7 +28,8 @@
       "sourceOptions": {
         "type": "tilearcgisrest",
         "layer": "2",
-        "url": "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Specialty/ESRI_StateCityHighway_USA/MapServer",
+        "url":
+          "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Specialty/ESRI_StateCityHighway_USA/MapServer",
         "queryFormat": "esrijson"
       }
     },
@@ -36,7 +38,8 @@
       "sourceOptions": {
         "type": "tilearcgisrest",
         "layer": "0",
-        "url": "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Specialty/ESRI_StateCityHighway_USA/MapServer",
+        "url":
+          "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Specialty/ESRI_StateCityHighway_USA/MapServer",
         "queryFormat": "esrijson"
       }
     }
