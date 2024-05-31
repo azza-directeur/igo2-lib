@@ -27,6 +27,7 @@ import {
   PrintPaperFormat,
   PrintResolution
 } from './print.type';
+import { Size } from 'ol/size';
 
 declare global {
   interface Navigator {
@@ -754,8 +755,8 @@ export class PrintService {
     baseMargins: [number, number, number, number],
     legendPostion: PrintLegendPosition
   ) {
-    const mapSize = map.ol.getSize() as [number, number];
-    const viewResolution = map.ol.getView().getResolution();
+    const mapSize: Size = map.ol.getSize();
+    const viewResolution: number = map.ol.getView().getResolution();
     const dimensionPixels = this.setMapResolution(
       map,
       imageDimensions,
@@ -847,7 +848,7 @@ export class PrintService {
 
   private resetOriginalMapSize(
     map: IgoMap,
-    initialSize: [number, number],
+    initialSize: Size,
     viewResolution: number
   ) {
     map.ol.setSize(initialSize);
