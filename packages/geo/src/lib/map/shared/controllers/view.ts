@@ -199,7 +199,7 @@ export class MapViewController extends MapController {
         projection
       );
     }
-    return extent as [number, number, number, number];
+    return extent as MapExtent;
   }
 
   /**
