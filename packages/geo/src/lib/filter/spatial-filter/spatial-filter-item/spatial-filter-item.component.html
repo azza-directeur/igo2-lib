@@ -175,6 +175,85 @@
   </mat-tree>
 </div>
 
+<!-- Nouvelle section pour faire les choix d'unites d'adresses karen  -->
+<div 
+	class="adresse"
+	*ngif="(selectedItemType ==='Address' && !tableTemplate) || 
+		   (selectedItemType)=== 'Address' && tableTemplate && !listIsVisible)"
+>
+
+<mat-table>
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef class="addresse-header">{{
+        'igo.geo.spatialFilter.Address' | translate
+      }}</mat-header-cell>
+    </ng-container>
+
+    <!-- Select Column -->
+    <ng-container matColumnDef="select">
+      <mat-header-cell *matHeaderCellDef class="checks-header">
+        <mat-checkbox
+          (change)="$event ? masterToggleAdress() : null"
+          [checked]="isAllSelectedAdres()"
+          [indeterminate]="selectedAdresChoix.hasValue() && !isAllSelectedAdres()"
+        >
+        </mat-checkbox>
+      </mat-header-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+
+  <mat-tree [dataSource]="dataSourceAdres" [treeControl]="treeControl">
+    <!-- This is the tree node template for leaf nodes -->
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+      <li class="mat-tree-node">
+        <!-- use a disabled button to provide padding for tree leaf -->
+        <button mat-icon-button disabled></button>
+        {{ node.name }}
+        <mat-checkbox
+          class="tree-check"
+          (click)="$event.stopPropagation()"
+          (change)="$event ? onToggleChange(node) : null"
+          [checked]="selectedAdresChoix.isSelected(node)"
+        >
+        </mat-checkbox>
+      </li>
+    </mat-tree-node>
+
+    <!-- This is the tree node template for expandable nodes -->
+    <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+      <div class="mat-tree-node">
+        <button mat-icon-button (click)="onToggleClickAdres(node)">
+          <mat-icon
+            [svgIcon]="
+              treeControl.isExpanded(node) ? 'chevron-down' : 'chevron-right'
+            "
+          ></mat-icon>
+        </button>
+        {{ node.name }}
+        <mat-checkbox
+          class="tree-check-2"
+          (change)="$event ? childrensToggleAdress(node) : null"
+          [checked]="isAllSelectedAdres(node)"
+          [indeterminate]="hasChildrenSelectedAdres(node) && !isAllSelectedAdres(node)"
+        >
+        </mat-checkbox>
+      </div>
+      <ul
+        class="tree-ul"
+        [class.example-tree-invisible]="!treeControl.isExpanded(node)"
+      >
+        <ng-container matTreeNodeOutlet></ng-container>
+      </ul>
+    </mat-nested-tree-node>
+  </mat-tree>
+
+</div>
+
+
 <div class="buttons">
   <button
     *ngIf="isPredefined()"

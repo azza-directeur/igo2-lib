@@ -64,7 +64,7 @@ import {
 import { SpatialFilterService } from '../../shared/spatial-filter.service';
 import { Feature } from './../../../feature/shared/feature.interfaces';
 import { SpatialFilterItemType } from './../../shared/spatial-filter.enum';
-import { SpatialFilterThematic } from './../../shared/spatial-filter.interface';
+import { SpatialFilterAdress, SpatialFilterThematic } from './../../shared/spatial-filter.interface';
 
 /**
  * Spatial-Filter-Item (search parameters)
@@ -244,7 +244,7 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
   @Output() itemTypeChange = new EventEmitter<SpatialFilterItemType>();
 
   @Output() thematicChange = new EventEmitter<SpatialFilterThematic[]>();
-
+  @Output() adresobjChange = new EventEmitter<SpatialFilterAdress[]>(); //ajouter dans la ligne 247
   @Output() drawZoneEvent = new EventEmitter<Feature>();
 
   @Output() bufferEvent = new EventEmitter<number>();
@@ -280,11 +280,15 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
   public childrens: SpatialFilterThematic[] = [];
   public groups: string[] = [];
   public thematics: SpatialFilterThematic[] = [];
+  public adresChoix:SpatialFilterAdress[] =[]; //ajout karen 
   public dataSource = new MatTreeNestedDataSource<SpatialFilterThematic>();
+  public dataSourceAdres = new MatTreeNestedDataSource<SpatialFilterAdress>(); //ajout karen
   public selectedThematics = new SelectionModel<SpatialFilterThematic>(
     true,
     []
   );
+  //ajout karen 
+  public selectedAdresChoix = new SelectionModel<SpatialFilterAdress>( true,[] );
 
   // For geometry form field input
   value$: BehaviorSubject<GeoJSONGeometry> = new BehaviorSubject(undefined);
@@ -346,6 +350,7 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
           this.childrens.sort((a, b) => {
             return a.name.localeCompare(b.name);
           });
+          console.log('value item', item);
         }
         this.groups.push(
           this.languageService.translate.instant('igo.geo.terrapi.limites')
@@ -528,6 +533,111 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
 
     this.store.addStrategy(selectionStrategy, true);
     this.store.addStrategy(selectedRecordStrategy, false);
+
+
+    //outre service pour adres a voir --modifie karen 
+
+    this.spatialFilterService
+    .loadAdresseList()
+    .subscribe((items:SpatialFilterAdress[]) => {
+    //sacar en la lista adress por defecto y tener la posibilidad de escoger solamente unidades.
+    //
+
+    for (const item of items) {
+        this.childrens.push(item);
+        this.childrens.sort((a, b) => {
+          return a.name.localeCompare(b.name);//ver el comportamiento de name
+        });
+        console.log('value item', item);
+        
+      }
+      this.groups.push(
+        this.languageService.translate.instant('igo.geo.terrapi.limites')
+      );
+      const limits: SpatialFilterAdress = {
+        name: this.groups[0],
+        children: []
+      };
+
+      this.adresChoix.push(limits);
+      this.childrens.forEach((child) => {
+        if (child.group && this.groups.indexOf(child.group) === -1){
+          this.groups.push(child.group);
+          const adresobj: SpatialFilterAdress = {
+            name: child.group,
+                children: []
+
+          };
+          this.adresChoix.push(adresobj);
+        }
+        if(!child.group){
+    // condition if pour faire passeer la liste des coincidences avec les limites administratives .
+
+    if (
+            child.name ===
+              this.languageService.translate.instant(
+                'igo.geo.terrapi.AdmRegion'
+              ) ||
+            child.name ===
+              this.languageService.translate.instant('igo.geo.terrapi.Mun') ||
+            child.name ===
+              this.languageService.translate.instant(
+                'igo.geo.terrapi.Arrond'
+              ) ||
+            child.name ===
+              this.languageService.translate.instant(
+                'igo.geo.terrapi.CircFed'
+              ) ||
+            child.name ===
+              this.languageService.translate.instant(
+                'igo.geo.terrapi.CircProv'
+              ) ||
+            child.name ===
+              this.languageService.translate.instant(
+                'igo.geo.terrapi.DirReg'
+              ) ||
+            child.name ===
+              this.languageService.translate.instant('igo.geo.terrapi.MRC') ||
+            child.name ===
+              this.languageService.translate.instant(
+                'igo.geo.terrapi.RegTour'
+              )
+          ) {
+            child.group = limits.name;
+          } else if (
+            child.name ===
+            this.languageService.translate.instant('igo.geo.terrapi.routes')
+          ) {
+            child.group = this.languageService.translate.instant(
+              'igo.geo.spatialFilter.group.transport'
+            );
+          } else {
+            const adresChoix: SpatialFilterAdress = {
+              name: child.name,
+              children: [],
+              source: child.source
+            };
+            this.adresChoix.push(adresobj);
+          }
+        }
+        this.adresChoix.sort((a,b) => {
+        return a.name.localeCompare(b.name);
+        });
+      });
+
+      this.adresChoix.forEach((adresobj) => {
+        for (const child of this.childrens) {
+          if (child.group === adresobj.name) {
+            adresobj.children.push(child);
+          }
+        }
+      });
+
+    });
+
+    this.dataSourceAdres.data = this.adresChoix;
+
+
   }
 
   /**
@@ -597,7 +707,22 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
     return false;
   }
 
+  //option pour adres s'il y a un enfant à prendre en compte --modifie karen 
+  hasChildAdres(_: number, node: SpatialFilterAdress) {
+    if (node.children) {
+      return node.children.length;
+    }
+    return false;
+    }
+
   onToggleClick(node: SpatialFilterThematic) {
+    this.treeControl.isExpanded(node)
+      ? this.treeControl.collapse(node)
+      : this.treeControl.expand(node);
+  }
+
+  //l'option pour adress car different section --modifie karen
+  onToggleClickAdres(node: SpatialFilterAdress) {
     this.treeControl.isExpanded(node)
       ? this.treeControl.collapse(node)
       : this.treeControl.expand(node);
@@ -642,12 +767,68 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
     }
   }
 
+  //apropie à ma facon --modifie karen
+  isAllSelectedAdres(node?: SpatialFilterAdress) {
+    let numSelected;
+    let numNodes = 0;
+    if (!node) {
+      numSelected = this.selectedAdresChoix.selected.length;
+      this.adresChoix.forEach((adresobj) => {
+        if (this.groups.indexOf(adresobj.name) === -1) {
+          numNodes++;
+        }
+      });
+      this.childrens.forEach((children) => {
+        if (
+          !this.adresChoix.find(
+            (adresobj) => adresobj.source === children.source
+          )
+        ) {
+          numNodes++;
+        }
+      });
+    } else {
+      numSelected = node.children.length;
+      node.children.forEach((children) => {
+        if (
+          this.selectedAdresChoix.selected.find(
+            (adresobj) => adresobj === children
+          )
+        ) {
+          numNodes++;
+        }
+      });
+    }
+
+    if (numNodes >= 1) {
+      return numSelected === numNodes;
+    } else {
+      return false;
+    }
+  }
+
   hasChildrenSelected(node: SpatialFilterThematic) {
     let bool = false;
     node.children.forEach((child) => {
       if (
         this.selectedThematics.selected.find(
           (thematic) => thematic.source === child.source
+        )
+      ) {
+        bool = true;
+      }
+    });
+    return bool;
+  }
+
+  //ajout de une autre option pourrait être ajouté --modifie karen
+  hasChildrenSelectedAdres(node: SpatialFilterAdress) {
+    //verifica si si alguno de los hijos de ese nodo está seleccionado
+    let bool = false;
+    node.children.forEach((child) => {
+      if (
+        this.selectedAdresChoix.selected.find(
+          (adresobj) => adresobj.source === child.source
         )
       ) {
         bool = true;
@@ -683,6 +864,36 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
     this.thematicChange.emit(selectedThematicsName);
   }
 
+  // Modifications ajoutés
+  /**
+   * Apply header checkbox for adreses --modifie karen
+   */
+  masterToggleAdress() {
+    this.isAllSelectedAdres()
+      ? this.selectedAdresChoix.clear()
+      : this.selectAllAdress();
+
+    const selectedAdressName: SpatialFilterAdress[] = [];
+    for (const adresobj of this.selectedAdresChoix.selected) {
+      selectedAdressName.push(adresobj);
+    }
+
+    if (this.isAllSelectedAdres()) {
+      this.adresChoix.forEach((adresobj) => {
+        if (this.hasChildAdres(0, adresobj)) {
+          this.treeControl.expand(adresobj);
+        }
+      });
+    } else {
+      this.adresChoix.forEach((adresobj) => {
+        if (this.hasChildAdres(0, adresobj)) {
+          this.treeControl.collapse(adresobj);
+        }
+      });
+    }
+    this.adresobjChange.emit(selectedAdressName);
+  }
+
   selectAll(node?: SpatialFilterThematic) {
     if (!node) {
       this.thematics.forEach((thematic) => {
@@ -708,6 +919,32 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
     }
   }
 
+  //Ajout de karen pour voir ce qui se passe au niveau des selectAlladress --modifie karen
+  selectAllAdress(node?: SpatialFilterAdress) {
+    if (!node) {
+      this.adresChoix.forEach((adresobj) => {
+        if (this.groups.indexOf(adresobj.name) === -1) {
+          this.selectedAdresChoix.select(adresobj);
+        }
+      });
+      this.childrens.forEach((children) => {
+        if (
+          !this.selectedAdresChoix.selected.find(
+            (adresobj) => adresobj.source === children.source
+          )
+        ) {
+          this.selectedAdresChoix.select(children);
+        }
+      });
+    } else {
+      if (this.hasChildAdres(0, node)) {
+        node.children.forEach((children) =>
+          this.selectedAdresChoix.select(children)
+        );
+      }
+    }
+  }
+
   childrensToggle(node: SpatialFilterThematic) {
     this.isAllSelected(node)
       ? node.children.forEach((child) => this.selectedThematics.deselect(child))
@@ -719,6 +956,23 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
     }
     this.treeControl.expand(node);
     this.thematicChange.emit(selectedThematicsName);
+  }
+
+  //ajout karen pour voir si les enfants de ChildrentoggleAdress est corect
+
+  childrensToggleAdress(node: SpatialFilterAdress) {
+    this.isAllSelectedAdres(node)
+      ? node.children.forEach((child) =>
+          this.selectedAdresChoix.deselect(child)
+        )
+      : this.selectAllAdress(node);
+
+    const selectedAdressName: SpatialFilterAdress[] = [];
+    for (const adresobj of this.selectedAdresChoix.selected) {
+      selectedAdressName.push(adresobj);
+    }
+    this.treeControl.expand(node);
+    this.adresobjChange.emit(selectedAdressName);
   }
 
   /**
@@ -756,6 +1010,45 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
       selectedThematicsName.push(thematic);
     }
     this.thematicChange.emit(selectedThematicsName);
+  }
+
+  /**
+   * Apply changes to the adresses selected tree and emit event version for adresse --modifie karen
+   
+   */
+
+  onToggleChangeAdress(nodeSelected: SpatialFilterAdress) {
+    let selected = false;
+    if (
+      this.selectedAdresChoix.selected.find(
+        (adresobj) => adresobj.source === nodeSelected.source
+      ) !== undefined
+    ) {
+      selected = true;
+    }
+
+    this.childrens.forEach((children) => {
+      if (children === nodeSelected && selected === false) {
+        this.selectedAdresChoix.select(children);
+      }
+      if (children === nodeSelected && selected === true) {
+        this.selectedAdresChoix.deselect(children);
+      }
+    });
+    this.adresChoix.forEach((adresobj) => {
+      if (adresobj === nodeSelected && selected === false) {
+        this.selectedAdresChoix.select(adresobj);
+      }
+      if (adresobj === nodeSelected && selected === true) {
+        this.selectedAdresChoix.deselect(adresobj);
+      }
+    });
+
+    const selectedAdressName: SpatialFilterAdress[] = [];
+    for (const adresobj of this.selectedAdresChoix.selected) {
+      selectedAdressName.push(adresobj);
+    }
+    this.adresobjChange.emit(selectedAdressName);
   }
 
   onDrawControlChange() {
@@ -848,20 +1141,26 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
    */
   clearSearch() {
     this.selectedThematics.clear();
+    this.selectedAdresChoix.clear(); //ajoute karen
     this.bufferFormControl.setValue(0);
     this.buffer = 0;
     this.bufferEvent.emit(0);
     this.thematicChange.emit([]);
+    this.adresobjChange.emit([]); //ajoute karen
     this.clearSearchEvent.emit();
   }
 
   /**
-   * Verify conditions of incomplete fields or busy service
+   * Verify conditions of incomplete fields or busy service  modifie karen
    */
   disableSearchButton(): boolean {
     if (this.type === SpatialFilterType.Predefined) {
       if (this.selectedItemType === SpatialFilterItemType.Address) {
-        if (this.queryType !== undefined && this.zone !== undefined) {
+        if (
+          this.queryType !== undefined &&
+          this.zone !== undefined &&
+          this.selectedAdresChoix.selected.length > 0
+        ) {
           return this.loading;
         }
       }
@@ -879,11 +1178,13 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
       this.type === SpatialFilterType.Polygon ||
       this.type === SpatialFilterType.Point
     ) {
-      if (
-        this.selectedItemType === SpatialFilterItemType.Address &&
-        this.formControl.value !== null
-      ) {
-        return this.loading;
+      if (this.selectedItemType === SpatialFilterItemType.Address) {
+        if (
+          this.selectedAdresChoix.selected.length > 0 &&
+          this.formControl.value !== null
+        ) {
+          return this.loading;
+        }
       }
       if (this.selectedItemType === SpatialFilterItemType.Thematics) {
         if (
@@ -900,7 +1201,9 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
   disabledClearSearch() {
     let disable = true;
     this.selectedItemType === SpatialFilterItemType.Address
-      ? (disable = this.queryType === undefined)
+      ? (disable =
+          this.queryType === undefined &&
+          this.selectedAdresChoix.selected.length === 0)
       : (disable =
           this.queryType === undefined &&
           this.selectedThematics.selected.length === 0);
@@ -909,7 +1212,7 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
   }
 
   /**
-   * Manage radius value at user change
+   * Manage radius value at user change 
    */
   getRadius() {
     let formValue;

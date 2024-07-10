@@ -9,3 +9,10 @@ export interface SpatialFilterThematic {
 export interface SpatialFilterOptions {
   url?: string;
 }
+
+export interface SpatialFilterAdress {
+  name: string;
+  children?: SpatialFilterAdress[];
+  source?: string;
+  zeroResults?: boolean;
+}

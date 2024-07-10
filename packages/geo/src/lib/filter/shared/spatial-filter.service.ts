@@ -13,7 +13,10 @@ import {
   SpatialFilterQueryType,
   SpatialFilterType
 } from './spatial-filter.enum';
-import { SpatialFilterThematic } from './spatial-filter.interface';
+import {
+  SpatialFilterAdress,
+  SpatialFilterThematic
+} from './spatial-filter.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -72,6 +75,32 @@ export class SpatialFilterService {
           )
         );
     }
+  }
+
+  /*
+   * Loading item unites
+   */
+  loadAdresseList() {
+    const url = 'types';
+    console.log('types', 'types');
+    const items: SpatialFilterAdress[] = [];
+
+    return this.http.get(this.baseUrl + url).pipe(
+      map((types: string[]) => {
+        types.forEach((type) => {
+          if ('adresses') {
+            console.log('adresess dans la condition', 'adresses');
+            const item: SpatialFilterAdress = {
+              name: undefined,
+              source: type
+            };
+            items.push(item);
+          }
+          console.log('items condition adresess', items);
+          return items;
+        });
+      })
+    );
   }
 
   /*
@@ -151,6 +180,7 @@ export class SpatialFilterService {
     itemType: SpatialFilterItemType,
     type?: SpatialFilterQueryType,
     thematic?: SpatialFilterThematic,
+    adresobj?: SpatialFilterAdress,
     buffer?: number
   ) {
     if (type) {
@@ -160,6 +190,39 @@ export class SpatialFilterService {
       let urlItem = '';
       if (itemType === SpatialFilterItemType.Address) {
         urlItem = 'adresses';
+        if ('unites') {
+          urlItem = 'unites';
+          console.log(urlItem);
+
+          return this.http
+            .get<{ features: Feature[] }>(
+              url + '/' + feature.properties.code + '/' + urlItem,
+              {
+                params: {
+                  geometry: 'true',
+                  icon: 'true',
+                  bufferInput: buffer.toString(),
+                  simplified: '100'
+                }
+              }
+            )
+            .pipe(
+              map((featureCollection) =>
+                featureCollection.features.map((g) => {
+                  g.meta = {
+                    id: g.properties.code,
+                    title: this.languageService.translate.instant(
+                      'igo.geo.spatialFilter.unites'
+                    ),
+                    icon: (g as any).icon
+                  };
+                  console.log('valeur de g', g);
+                  return g;
+                })
+              )
+            );
+        }
+
         return this.http
           .get<{ features: Feature[] }>(
             url + '/' + feature.properties.code + '/' + urlItem,
@@ -182,6 +245,7 @@ export class SpatialFilterService {
                   ),
                   icon: (f as any).icon
                 };
+                console.log('valeur f', f);
                 return f;
               })
             )

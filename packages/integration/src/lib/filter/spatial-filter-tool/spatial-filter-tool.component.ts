@@ -297,9 +297,13 @@ export class SpatialFilterToolComponent implements OnInit, OnDestroy {
       const theme: SpatialFilterThematic = {
         name: ''
       };
+      console.log(theme, "value de theme");
       thematics = [theme];
+      console.log(thematics, "value de thematics");
+      
     } else {
       thematics = this.thematics;
+      console.log(thematics, "value de thematics in else");
     }
     if (
       this.measureUnit === MeasureLengthUnit.Kilometers &&
