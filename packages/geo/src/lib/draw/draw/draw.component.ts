@@ -25,7 +25,11 @@ import {
 } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import {
+  MAT_BUTTON_TOGGLE_DEFAULT_OPTIONS,
+  MatButtonToggleDefaultOptions,
+  MatButtonToggleModule
+} from '@angular/material/button-toggle';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -42,8 +46,9 @@ import {
   EntityTableColumnRenderer,
   EntityTableComponent,
   EntityTableTemplate
-} from '@igo2/common';
+} from '@igo2/common/entity';
 import { LanguageService } from '@igo2/core/language';
+import { IgoLanguageModule } from '@igo2/core/language';
 
 import OlFeature from 'ol/Feature';
 import OlOverlay from 'ol/Overlay';
@@ -60,7 +65,6 @@ import OlVectorSource from 'ol/source/Vector';
 import { getDistance, getLength } from 'ol/sphere';
 import * as OlStyle from 'ol/style';
 
-import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { first, skip } from 'rxjs/operators';
 
@@ -146,7 +150,15 @@ import { DrawShorcutsComponent } from './draw-shorcuts.component';
     EntityTableComponent,
     MatBadgeModule,
     AsyncPipe,
-    TranslateModule
+    IgoLanguageModule
+  ],
+  providers: [
+    {
+      provide: MAT_BUTTON_TOGGLE_DEFAULT_OPTIONS,
+      useValue: {
+        hideSingleSelectionIndicator: true
+      } satisfies MatButtonToggleDefaultOptions
+    }
   ]
 })
 export class DrawComponent implements OnInit, OnDestroy {

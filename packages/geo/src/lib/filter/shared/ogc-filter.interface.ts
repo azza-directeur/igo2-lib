@@ -1,4 +1,4 @@
-import { DOMValue } from '@igo2/common';
+import { DOMValue } from '@igo2/common/dom';
 
 import olFormatFilter from 'ol/format/filter/Filter';
 import olGeometry from 'ol/geom/Geometry';
@@ -85,6 +85,7 @@ export interface OgcSelectorBundle {
   vertical?: boolean;
   multiple?: boolean;
   unfiltered?: boolean;
+  showChips?: boolean; // true by default for autocomplete
   selectors?:
     | OgcPushButton[]
     | OgcCheckbox[]

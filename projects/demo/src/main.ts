@@ -23,17 +23,10 @@ import {
 } from '@angular/router';
 
 import { provideAuthentification } from '@igo2/auth';
-import { provideIcon } from '@igo2/common';
+import { provideIcon } from '@igo2/common/icon';
 import { IgoCoreModule } from '@igo2/core';
-import { provideConfigOptions } from '@igo2/core/config';
-import { provideRootTranslation } from '@igo2/core/language';
-import {
-  IgoDirectionsModule,
-  IgoGeoWorkspaceModule,
-  provideIChercheSearchSource,
-  provideOsrmDirectionsSource,
-  provideWorkspaceSearchSource
-} from '@igo2/geo';
+import { provideConfig } from '@igo2/core/config';
+import { provideTranslation } from '@igo2/core/language';
 
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routing';
@@ -60,21 +53,16 @@ bootstrapApplication(AppComponent, {
       MatIconModule,
       MatListModule,
       MatSidenavModule,
-      MatToolbarModule,
-      IgoGeoWorkspaceModule,
-      IgoDirectionsModule
+      MatToolbarModule
     ),
     provideHttpClient(withJsonpSupport()),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideAnimations(),
-    provideConfigOptions({
+    provideConfig({
       default: environment.igo
     }),
-    provideRootTranslation(),
+    provideTranslation(),
     provideAuthentification(),
-    provideOsrmDirectionsSource(),
-    provideIChercheSearchSource(),
-    provideWorkspaceSearchSource(),
     provideIcon(),
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
