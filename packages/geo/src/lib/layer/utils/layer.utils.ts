@@ -1,7 +1,105 @@
-import { AnyLayerOptions } from '../shared/layers/any-layer.interface';
-import { VectorTileLayerOptions } from '../shared/layers/vectortile-layer.interface';
+import type {
+  AnyLayer,
+  AnyLayerItemOptions,
+  AnyLayerOptions,
+  Layer,
+  LayerGroup,
+  LayerGroupOptions,
+  VectorTileLayerOptions
+} from '../shared/layers';
 
-export function computeMVTOptionsOnHover(layerOptions: AnyLayerOptions) {
+export function isLayerGroupOptions(
+  option: AnyLayerOptions
+): option is LayerGroupOptions {
+  return (option as LayerGroupOptions).type === 'group';
+}
+
+export function isLayerItemOptions(
+  options: AnyLayerOptions
+): options is AnyLayerItemOptions {
+  return 'source' in options || 'sourceOptions' in options;
+}
+
+export function isLayerGroup(layer: AnyLayer): layer is LayerGroup {
+  return !!(layer as LayerGroup).children;
+}
+
+export function isLayerItem(layer: AnyLayer): layer is Layer {
+  return !isLayerGroup(layer);
+}
+
+export function isLayerLinked(layer: AnyLayer): layer is Layer {
+  return isLayerItem(layer) && !!layer.options.linkedLayers;
+}
+
+export function isLayerLinkedOptions(
+  options: AnyLayerOptions
+): options is AnyLayerItemOptions {
+  return isLayerItemOptions(options) && !!options.linkedLayers;
+}
+
+export function isBaseLayerLinked(
+  layer: AnyLayer,
+  allLayers: AnyLayer[]
+): layer is Layer {
+  if (!isLayerItem(layer)) {
+    return;
+  }
+
+  const linkedParent = getLinkedLayerParent(layer, allLayers);
+  return linkedParent && isBaseLayer(linkedParent);
+}
+
+export function getLinkedLayerParent(
+  layer: Layer,
+  layers: AnyLayer[]
+): AnyLayer | undefined {
+  if (!layer.options.linkedLayers) {
+    return;
+  }
+
+  return layers.find((list_layer) => {
+    if (!isLayerItem(list_layer)) {
+      return;
+    }
+    const links = list_layer.options.linkedLayers?.links;
+    if (links) {
+      return links.some((link) =>
+        link.linkedIds.includes(layer.options.linkedLayers.linkId)
+      );
+    }
+
+    return false;
+  });
+}
+export function getLinkedLayerOptionsParent(
+  options: AnyLayerItemOptions,
+  layersOptions: AnyLayerOptions[]
+): AnyLayerItemOptions | undefined {
+  if (!options.linkedLayers) {
+    return;
+  }
+
+  return layersOptions.find((list_options) => {
+    if (!isLayerItemOptions(list_options)) {
+      return;
+    }
+    const links = list_options.linkedLayers?.links;
+    if (links) {
+      return links.some((link) =>
+        link.linkedIds.includes(options.linkedLayers.linkId)
+      );
+    }
+
+    return false;
+  });
+}
+
+export function isBaseLayer(layer: AnyLayer): layer is Layer {
+  return !isLayerGroup(layer) && layer.baseLayer;
+}
+
+export function computeMVTOptionsOnHover(layerOptions: AnyLayerItemOptions) {
   const vectorTileLayerOptions = layerOptions as VectorTileLayerOptions;
   if (
     vectorTileLayerOptions.sourceOptions?.type === 'mvt' &&

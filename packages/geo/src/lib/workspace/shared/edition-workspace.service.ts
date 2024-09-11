@@ -46,9 +46,11 @@ import {
   FeatureStoreSelectionStrategy
 } from '../../feature/shared';
 import { OgcFilterableDataSourceOptions } from '../../filter/shared/ogc-filter.interface';
+import { isLayerItem } from '../../layer';
 import {
   GeoWorkspaceOptions,
   ImageLayer,
+  Layer,
   LayerService,
   LayersLinkProperties,
   LinkedProperties,
@@ -580,13 +582,13 @@ export class EditionWorkspaceService {
         this.messageService.success('igo.geo.workspace.deleteSuccess');
 
         this.refreshMap(workspace.layer as VectorLayer, workspace.layer.map);
-        for (const relation of workspace.layer.options.sourceOptions
-          .relations) {
-          workspace.map.layers.forEach((layer) => {
-            if (layer.title === relation.title) {
-              layer.dataSource.ol.refresh();
-            }
-          });
+        const relations =
+          workspace.layer.options.sourceOptions?.relations ?? [];
+        for (const relation of relations) {
+          const layer = workspace.map.layerController.all.find(
+            (layer) => isLayerItem(layer) && layer.title === relation.title
+          ) as Layer;
+          layer?.dataSource.ol.refresh();
         }
       },
       (error) => {
@@ -664,15 +666,14 @@ export class EditionWorkspaceService {
         this.refreshMap(workspace.layer as VectorLayer, workspace.layer.map);
 
         const relationLayers = [];
-        for (const relation of workspace.layer.options.sourceOptions
-          .relations) {
-          workspace.map.layers.forEach((layer) => {
-            if (layer.title === relation.title) {
+        workspace.layer.options.sourceOptions.relations?.forEach((relation) => {
+          workspace.map.layerController.all.forEach((layer) => {
+            if (isLayerItem(layer) && layer.title === relation.title) {
               relationLayers.push(layer);
               layer.dataSource.ol.refresh();
             }
           });
-        }
+        });
         this.relationLayers$.next(relationLayers);
       },
       (error) => {
@@ -767,8 +768,9 @@ export class EditionWorkspaceService {
     wfsOlLayer.setLoader(loader);
     wfsOlLayer.refresh();
 
-    for (const lay of map.layers) {
+    for (const lay of map.layerController.all) {
       if (
+        isLayerItem(lay) &&
         lay.id !== layer.id &&
         lay.options.linkedLayers?.linkId.includes(
           layer.id.substr(0, layer.id.indexOf('.') - 1)

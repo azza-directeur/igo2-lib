@@ -1,33 +1,42 @@
-@import '../../../../../core/src/style/partial/media';
-@import '../../../../../common/src/style/partial/common.variables';
-
 :host {
   overflow: hidden;
 
-  ::ng-deep .igo-layer-title {
-    display: block;
-    width: 100%;
-    cursor: pointer;
-  }
-
-  .igo-layer-legend-container {
-    padding-left: 18px;
-    width: calc(100% - 18px);
-  }
-
-  mat-icon {
-    &[matBadge] ::ng-deep .mat-badge-content {
-      font-size: 12px;
+  &:hover {
+    .list-actions {
+      ::ng-deep button {
+        visibility: visible;
+      }
     }
   }
 
-  .layerCheck {
-    align-self: baseline;
-    width: 16px;
-    padding-right: 0px;
-  }
+  .list-actions {
+    margin-left: 8px;
+    margin-right: 4px;
 
-  .align-disabled-button-with-tooltip {
-    display: inline-block;
+    ::ng-deep button {
+      visibility: hidden;
+    }
   }
+}
+
+.layer-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.igo-layer-title {
+  display: block;
+  cursor: pointer;
+}
+
+.igo-layer-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.igo-layer-legend-container {
+  padding-left: 18px;
+  width: calc(100% - 18px);
 }

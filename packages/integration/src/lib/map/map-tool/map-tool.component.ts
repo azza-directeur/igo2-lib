@@ -6,16 +6,17 @@ import {
   ContextListBindingDirective,
   ContextListComponent
 } from '@igo2/context';
+import { ConfigService } from '@igo2/core/config';
 import { IgoLanguageModule } from '@igo2/core/language';
 import {
   ExportButtonComponent,
   ExportOptions,
   IgoMap,
   Layer,
-  LayerListBindingDirective,
-  LayerListComponent,
   LayerListControlsEnum,
   LayerListControlsOptions,
+  LayerViewerComponent,
+  LayerViewerOptions,
   MetadataButtonComponent,
   OgcFilterButtonComponent,
   TimeFilterButtonComponent,
@@ -46,14 +47,13 @@ import { MapState } from './../map.state';
   standalone: true,
   imports: [
     MatTabsModule,
-    LayerListComponent,
-    LayerListBindingDirective,
     WorkspaceButtonComponent,
     ExportButtonComponent,
     OgcFilterButtonComponent,
     TimeFilterButtonComponent,
     TrackFeatureButtonComponent,
     MetadataButtonComponent,
+    LayerViewerComponent,
     ContextListComponent,
     ContextListBindingDirective,
     IgoLanguageModule
@@ -78,10 +78,6 @@ export class MapToolComponent {
     return this.mapState.map;
   }
 
-  get excludeBaseLayers(): boolean {
-    return this.layerListControls.excludeBaseLayers || false;
-  }
-
   get layerFilterAndSortOptions(): any {
     const filterSortOptions = Object.assign(
       {
@@ -103,11 +99,28 @@ export class MapToolComponent {
     return filterSortOptions;
   }
 
+  private _layerViewerOptions: Partial<LayerViewerOptions>;
+  get layerViewerOptions(): LayerViewerOptions {
+    return {
+      filterAndSortOptions: this.layerFilterAndSortOptions,
+      legend: {
+        showForVisibleLayers: this.expandLegendOfVisibleLayers,
+        showOnVisibilityChange: this.toggleLegendOnVisibilityChange,
+        updateOnResolutionChange: this.updateLegendOnResolutionChange
+      },
+      queryBadge: this.queryBadge,
+      ...this._layerViewerOptions
+    };
+  }
+
   constructor(
     private mapState: MapState,
     private toolState: ToolState,
-    private importExportState: ImportExportState
-  ) {}
+    private importExportState: ImportExportState,
+    private configService: ConfigService
+  ) {
+    this._layerViewerOptions = this.configService.getConfig('layerViewer');
+  }
 
   activateExport(layer: Layer) {
     let id = layer.id;

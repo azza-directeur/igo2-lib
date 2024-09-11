@@ -116,7 +116,7 @@ export class SearchPointerSummaryDirective
       });
 
     // To handle context change without using the contextService.
-    this.layers$$ = this.map.layers$.subscribe((layers) => {
+    this.layers$$ = this.map.layerController.all$.subscribe((layers) => {
       if (
         this.store &&
         !layers.find((l) => l.id === 'searchPointerSummaryId')

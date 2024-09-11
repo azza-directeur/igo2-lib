@@ -1,0 +1,49 @@
+.igo-layer-title {
+  flex: 1;
+  cursor: pointer;
+}
+
+.layer-browser-group-carret {
+  margin-right: 10px;
+}
+
+.layer-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.igo-layer-group-title {
+  font-weight: 500;
+}
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &:hover {
+    .group-actions {
+      ::ng-deep button {
+        visibility: visible;
+      }
+    }
+  }
+}
+
+.group-actions {
+  margin-left: 8px;
+  margin-right: 4px;
+
+  ::ng-deep button {
+    visibility: hidden;
+
+    &.disabled {
+      visibility: visible;
+    }
+  }
+}
+
+.child-list {
+  padding-left: 26px;
+}

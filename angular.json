@@ -535,10 +535,6 @@
   },
   "cli": {
     "schematicCollections": ["@schematics/angular"],
-    "cache": {
-      "enabled": false,
-      "environment": "all"
-    },
     "analytics": false
   }
 }

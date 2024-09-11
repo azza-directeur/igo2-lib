@@ -5,7 +5,8 @@ import { ObjectEvent } from 'ol/Object';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
-import { Layer, LinkedProperties } from '../../layer/shared/layers';
+import { Layer } from '../../layer/shared/layers/layer';
+import { LinkedProperties } from '../../layer/shared/layers/layer.interface';
 
 export class LayerWatcher extends Watcher {
   public propertyChange$ = new BehaviorSubject<{

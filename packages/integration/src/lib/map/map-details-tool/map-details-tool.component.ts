@@ -4,16 +4,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 
 import { ToolComponent } from '@igo2/common/tool';
+import { ConfigService } from '@igo2/core/config';
 import { IgoLanguageModule } from '@igo2/core/language';
 import {
+  AnyLayer,
   ExportButtonComponent,
   ExportOptions,
   IgoMap,
   Layer,
-  LayerListBindingDirective,
-  LayerListComponent,
   LayerListControlsEnum,
   LayerListControlsOptions,
+  LayerViewerComponent,
+  LayerViewerOptions,
   MetadataButtonComponent,
   OgcFilterButtonComponent,
   SearchSourceService,
@@ -23,7 +25,6 @@ import {
 } from '@igo2/geo';
 
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import {
   ImportExportMode,
@@ -45,8 +46,7 @@ import { MapState } from './../map.state';
   standalone: true,
   imports: [
     NgIf,
-    LayerListComponent,
-    LayerListBindingDirective,
+    LayerViewerComponent,
     WorkspaceButtonComponent,
     ExportButtonComponent,
     OgcFilterButtonComponent,
@@ -78,24 +78,26 @@ export class MapDetailsToolComponent implements OnInit {
 
   @Input() layerAdditionAllowed = true;
 
+  private _layerViewerOptions: Partial<LayerViewerOptions>;
+  get layerViewerOptions(): LayerViewerOptions {
+    return {
+      filterAndSortOptions: this.layerFilterAndSortOptions,
+      legend: {
+        showForVisibleLayers: this.expandLegendOfVisibleLayers,
+        showOnVisibilityChange: this.toggleLegendOnVisibilityChange,
+        updateOnResolutionChange: this.updateLegendOnResolutionChange
+      },
+      queryBadge: this.queryBadge,
+      ...this._layerViewerOptions
+    };
+  }
+
   get map(): IgoMap {
     return this.mapState.map;
   }
 
-  get layers$(): Observable<Layer[]> {
-    return this.map.layers$.pipe(
-      map((layers) =>
-        layers.filter(
-          (layer) =>
-            layer.showInLayerList !== false &&
-            (!this.excludeBaseLayers || !layer.baseLayer)
-        )
-      )
-    );
-  }
-
-  get excludeBaseLayers(): boolean {
-    return this.layerListControls.excludeBaseLayers || false;
+  get layers$(): Observable<AnyLayer[]> {
+    return this.map.layerController.all$;
   }
 
   get layerFilterAndSortOptions(): any {
@@ -142,8 +144,11 @@ export class MapDetailsToolComponent implements OnInit {
     private toolState: ToolState,
     private searchSourceService: SearchSourceService,
     private cdRef: ChangeDetectorRef,
-    private importExportState: ImportExportState
-  ) {}
+    private importExportState: ImportExportState,
+    private configService: ConfigService
+  ) {
+    this._layerViewerOptions = this.configService.getConfig('layerViewer');
+  }
 
   ngOnInit(): void {
     // prevent message to be shown too quickly. Waiting for layers

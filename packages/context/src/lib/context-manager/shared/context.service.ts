@@ -8,14 +8,17 @@ import { LanguageService } from '@igo2/core/language';
 import { Message, MessageService } from '@igo2/core/message';
 import { RouteService } from '@igo2/core/route';
 import { StorageService } from '@igo2/core/storage';
-import type {
+import {
+  AnyLayer,
   AnyLayerOptions,
-  IgoMap,
+  ExportService,
   Layer,
-  VectorLayerOptions,
-  VectorTileLayerOptions
+  MapBase,
+  getLinkedLayerParent,
+  isBaseLayer,
+  isLayerGroup,
+  isLayerItem
 } from '@igo2/geo';
-import { ExportService } from '@igo2/geo';
 import { ObjectUtils, uuid } from '@igo2/utils';
 
 import GeoJSON from 'ol/format/GeoJSON';
@@ -45,8 +48,7 @@ import {
   ContextServiceOptions,
   ContextsList,
   DetailedContext,
-  ExtraFeatures,
-  IContextLayer
+  ExtraFeatures
 } from './context.interface';
 
 @Injectable({
@@ -235,7 +237,7 @@ export class ContextService {
     );
   }
 
-  update(id: string, context: Context): Observable<Context> {
+  update(id: string, context: DetailedContext): Observable<Context> {
     const url = this.baseUrl + '/contexts/' + id;
     return this.http.patch<Context>(url, context);
   }
@@ -441,7 +443,7 @@ export class ContextService {
     this.editedContext$.next(context);
   }
 
-  getContextFromMap(igoMap: IgoMap, empty?: boolean): DetailedContext {
+  getContextFromMap(igoMap: MapBase, empty?: boolean): DetailedContext {
     const view = igoMap.ol.getView();
     const proj = view.getProjection().getCode();
     const center: any = new olPoint(view.getCenter()).transform(
@@ -465,33 +467,16 @@ export class ContextService {
       tools: []
     };
 
-    let layers = [];
-    if (empty === true) {
-      layers = igoMap.layers$
-        .getValue()
-        .filter(
-          (lay) =>
-            lay.baseLayer === true ||
-            lay.options.id === 'searchPointerSummaryId'
-        )
-        .sort((a, b) => a.zIndex - b.zIndex);
-    } else {
-      layers = igoMap.layers$
-        .getValue()
-        .filter((lay) => !lay.id.includes('WfsWorkspaceTableDest'))
-        .sort((a, b) => a.zIndex - b.zIndex);
+    const layers: AnyLayer[] = empty
+      ? []
+      : [...igoMap.layerController.treeLayers];
+
+    const baseLayer = igoMap.layerController.baseLayer;
+    if (baseLayer) {
+      layers.unshift(baseLayer);
     }
 
-    for (const layer of layers) {
-      const opts: IContextLayer = {
-        id: layer.options.id ? String(layer.options.id) : undefined,
-        layerOptions: layer.saveableOptions,
-        sourceOptions: layer.dataSource.saveableOptions
-      };
-      if (opts.sourceOptions.type) {
-        context.layers.push(opts);
-      }
-    }
+    context.layers = this.formatLayers(layers);
 
     context.tools = this.tools.map((tool) => {
       return {
@@ -503,26 +488,47 @@ export class ContextService {
     return context;
   }
 
+  private formatLayers(layers: AnyLayer[]): AnyLayerOptions[] {
+    return layers
+      .map((layer) =>
+        isLayerItem(layer)
+          ? this.formatLayer(layer, layers)
+          : layer.saveableOptions
+      )
+      .filter(Boolean);
+  }
+
+  private formatLayer(layer: Layer, layers: AnyLayer[]): AnyLayerOptions {
+    if (isBaseLayer(layer) && !layer.visible) {
+      return;
+    }
+
+    const linkedParent = getLinkedLayerParent(layer, layers);
+    if (linkedParent && isBaseLayer(linkedParent) && !linkedParent.visible) {
+      return;
+    }
+
+    if (layer.options.sourceOptions?.type) {
+      return layer.saveableOptions;
+    }
+  }
+
   getContextFromLayers(
-    igoMap: IgoMap,
-    layers: Layer[],
+    igoMap: MapBase,
+    layers: AnyLayer[],
     name: string,
     keepCurrentView?: boolean
   ): DetailedContext {
-    const currentContext = this.context$.getValue();
     const view = igoMap.ol.getView();
     const proj = view.getProjection().getCode();
-    const center: any = new olPoint(view.getCenter()).transform(
-      proj,
-      'EPSG:4326'
-    );
+    const center = new olPoint(view.getCenter()).transform(proj, 'EPSG:4326');
 
     const context: DetailedContext = {
       uri: name,
       title: name,
       map: {
         view: {
-          center: center.getCoordinates(),
+          center: center.getCoordinates() as [number, number],
           zoom: view.getZoom(),
           projection: proj,
           keepCurrentView
@@ -534,10 +540,9 @@ export class ContextService {
       extraFeatures: []
     };
 
-    const currentLayers = igoMap.layers$.getValue();
-    context.layers = currentLayers
-      .filter((l) => l.baseLayer)
-      .map((l) => {
+    context.layers = igoMap.layerController.all
+      .filter((l) => isBaseLayer(l))
+      .map((l: Layer) => {
         return {
           baseLayer: true,
           sourceOptions: l.options.sourceOptions,
@@ -547,33 +552,16 @@ export class ContextService {
       });
 
     layers.forEach((layer) => {
-      // Do not seem to work properly. layerFound is always undefined.
-      const layerFound = currentContext.layers.find((contextLayer) => {
-        const source = contextLayer.source;
-        return source && layer.id === source.id && !contextLayer.baseLayer;
-      });
-      if (layerFound) {
-        const layerFoundAs = layerFound as
-          | VectorLayerOptions
-          | VectorTileLayerOptions;
-        let layerStyle = layerFoundAs.style;
-        if (layerFoundAs.igoStyle?.styleByAttribute) {
-          layerStyle = undefined;
-        } else if (layerFoundAs.igoStyle?.clusterBaseStyle) {
-          layerStyle = undefined;
-          delete layerFound.sourceOptions[`source`];
-          delete layerFound.sourceOptions[`format`];
-        }
-        delete layerFound.source;
-        const opts: AnyLayerOptions = {
-          ...layerFound,
-          title: layer.options.title,
-          zIndex: layer.zIndex,
-          style: layerStyle,
-          visible: layer.visible,
-          opacity: layer.opacity
-        };
-        context.layers.push(opts);
+      if (isLayerGroup(layer)) {
+        return context.layers.push(layer.options);
+      }
+      if (!(layer.ol.getSource() instanceof olVectorSource)) {
+        const layerOptions = layer.options;
+        layerOptions.zIndex = layer.zIndex;
+        layerOptions.visible = layer.visible;
+        layerOptions.opacity = layer.opacity;
+        delete layerOptions.source;
+        context.layers.push(layerOptions);
       } else {
         if (!(layer.ol.getSource() instanceof olVectorSource)) {
           const catalogLayer = layer.options;
@@ -681,15 +669,8 @@ export class ContextService {
     }
   }
 
-  getContextLayers(igoMap: IgoMap) {
-    const layers: Layer[] = [];
-    const mapLayers = igoMap.layers$.getValue();
-    mapLayers.forEach((layer) => {
-      if (!layer.baseLayer && layer.options.id !== 'searchPointerSummaryId') {
-        layers.push(layer);
-      }
-    });
-    return layers;
+  getContextLayers(map: MapBase) {
+    return map.layerController.treeLayers;
   }
 
   private readParamsFromRoute() {
@@ -768,7 +749,7 @@ export class ContextService {
     } else {
       this.getContextByUri(context.uri)
         .pipe(first())
-        .subscribe((newContext: DetailedContext) => {
+        .subscribe((newContext) => {
           this.toolsChanged$.next(newContext);
         });
 

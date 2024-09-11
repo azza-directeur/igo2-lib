@@ -6,12 +6,15 @@ import olSourceImage from 'ol/source/Image';
 
 import { ImageArcGISRestDataSource } from '../../../datasource/shared/datasources/imagearcgisrest-datasource';
 import { WMSDataSource } from '../../../datasource/shared/datasources/wms-datasource';
-import { IgoMap } from '../../../map/shared/map';
+import { MapBase } from '../../../map/shared/map.abstract';
 import { ImageWatcher } from '../../utils/image-watcher';
 import { ImageLayerOptions } from './image-layer.interface';
 import { Layer } from './layer';
+import { LayerGroup } from './layer-group';
+import { LayerType } from './layer.interface';
 
 export class ImageLayer extends Layer {
+  type: LayerType = 'raster';
   public declare dataSource: WMSDataSource | ImageArcGISRestDataSource;
   public declare options: ImageLayerOptions;
   public declare ol: olLayerImage<olSourceImage>;
@@ -48,13 +51,13 @@ export class ImageLayer extends Layer {
     return image;
   }
 
-  public setMap(map: IgoMap | undefined) {
+  public setMap(map: MapBase | undefined, parent: LayerGroup | undefined) {
     if (map === undefined) {
       this.watcher.unsubscribe();
     } else {
       this.watcher.subscribe(() => void 1);
     }
-    super.setMap(map);
+    super.setMap(map, parent);
   }
 
   private customLoader(
