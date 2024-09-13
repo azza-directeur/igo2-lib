@@ -110,9 +110,7 @@ export class ImportExportComponent implements OnDestroy, OnInit {
   public form: UntypedFormGroup;
   public importForm: UntypedFormGroup;
   public formats$ = new BehaviorSubject<ExportFormat[]>(undefined);
-  public exportableLayers$: BehaviorSubject<AnyLayer[]> = new BehaviorSubject(
-    []
-  );
+  public exportableLayers$ = new BehaviorSubject<AnyLayer[]>([]);
   public loading$ = new BehaviorSubject(false);
   public forceNaming = false;
   public controlFormat = 'format';
@@ -563,7 +561,7 @@ export class ImportExportComponent implements OnDestroy, OnInit {
       }
     }
 
-    let fileName: string = '';
+    let fileName = '';
 
     for (const layerId of data.layers) {
       this.loading$.next(true);
@@ -574,7 +572,7 @@ export class ImportExportComponent implements OnDestroy, OnInit {
         this.onFileExportError(error);
         throw error;
       });
-      let geomTypes = this.exportService.getGeomTypes(features, data.format);
+      const geomTypes = this.exportService.getGeomTypes(features, data.format);
       if (!isCSV || !data.combineLayers || data.layers.length === 1) {
         fileName = layer.title;
         if (data.name) {
@@ -587,7 +585,7 @@ export class ImportExportComponent implements OnDestroy, OnInit {
       }
 
       if (data.format === 'URL') {
-        this.handleUrlExport(layer, data);
+        this.handleUrlExport(layer);
       }
 
       if (data.format === 'GPX') {
@@ -619,7 +617,7 @@ export class ImportExportComponent implements OnDestroy, OnInit {
     }
   }
 
-  private handleUrlExport(layer: Layer, data: ExportOptions): void {
+  private handleUrlExport(layer: Layer): void {
     const { download = null }: DataSourceOptions = layer.dataSource.options;
     if (download?.url || download?.dynamicUrl) {
       setTimeout(() => {
@@ -649,7 +647,7 @@ export class ImportExportComponent implements OnDestroy, OnInit {
   }
 
   private async handleCsvExport(data: ExportOptions, fileName: string) {
-    let featuresCSV: any[] = [];
+    const featuresCSV = [];
 
     if (data.combineLayers) {
       let previousFeature = undefined;
@@ -720,7 +718,7 @@ export class ImportExportComponent implements OnDestroy, OnInit {
         this.onFileExportError(error);
         throw error;
       });
-      let geomTypes = this.exportService.getGeomTypes(features, data.format);
+      const geomTypes = this.exportService.getGeomTypes(features, data.format);
       return types.concat(geomTypes);
     }, Promise.resolve([]));
   }
@@ -1075,7 +1073,7 @@ export class ImportExportComponent implements OnDestroy, OnInit {
       });
   }
 
-  private compareString<T extends String>(value1: T, value2: string): boolean {
+  private compareString<T extends string>(value1: T, value2: string): boolean {
     return value1.toUpperCase() === value2.toUpperCase();
   }
 

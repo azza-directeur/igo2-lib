@@ -14,8 +14,8 @@ export interface ExportOptions {
   featureInMapExtent?: boolean;
 }
 
-export type GeometryCollection = {
+export interface GeometryCollection {
   /** The geometry type */
   type: Type | null;
   features: OlFeature[];
-};
+}

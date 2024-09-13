@@ -371,13 +371,10 @@ export class ExportService {
     projectionIn: string,
     projectionOut: string
   ) {
-    let featuresText: string = new olformat.GeoJSON().writeFeatures(
-      olFeatures,
-      {
-        dataProjection: projectionOut,
-        featureProjection: projectionIn
-      }
-    );
+    const featuresText = new olformat.GeoJSON().writeFeatures(olFeatures, {
+      dataProjection: projectionOut,
+      featureProjection: projectionIn
+    });
     const url = `${this.ogreUrl}/convertJson`;
 
     const formData = new FormData();
