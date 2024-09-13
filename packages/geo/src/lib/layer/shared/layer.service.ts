@@ -212,6 +212,7 @@ export class LayerService {
           resolution
         );
       };
+
       igoLayer = new VectorLayer(
         layerOptions,
         this.messageService,
@@ -233,6 +234,7 @@ export class LayerService {
           baseStyle
         );
       };
+
       igoLayer = new VectorLayer(
         layerOptions,
         this.messageService,
