@@ -1,10 +1,12 @@
 import { SubjectStatus, Watcher } from '@igo2/utils';
 
 import { ObjectEvent } from 'ol/Object';
+import LayerGroup from 'ol/layer/Group';
 
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
+import { AnyLayer } from '../../layer/shared/layers/any-layer';
 import { Layer } from '../../layer/shared/layers/layer';
 import { LinkedProperties } from '../../layer/shared/layers/layer.interface';
 
@@ -46,16 +48,16 @@ export class LayerWatcher extends Watcher {
     this.propertyChange$.next({ event: change, layer });
   }
 
-  watchLayer(layer: Layer) {
+  watchLayer(layer: AnyLayer) {
     if (layer.status$ === undefined) {
       return;
     }
-    layer.ol.on('propertychange', (evt) => this.setPropertyChange(evt, layer));
-    layer.dataSource.ol.on('propertychange', (evt) =>
-      this.setPropertyChange(evt, layer)
-    );
 
-    this.layers.push(layer);
+    if (layer.ol instanceof LayerGroup) {
+      return;
+    }
+
+    this._watchLayer(layer as Layer);
 
     const layer$$ = layer.status$
       .pipe(distinctUntilChanged())
@@ -81,12 +83,30 @@ export class LayerWatcher extends Watcher {
     this.subscriptions.push(layer$$);
   }
 
-  unwatchLayer(layer: Layer) {
+  private _watchLayer(layer: Layer) {
+    layer.ol.on('propertychange', (evt) => this.setPropertyChange(evt, layer));
+    layer.dataSource.ol.on('propertychange', (evt) =>
+      this.setPropertyChange(evt, layer)
+    );
+
+    this.layers.push(layer);
+  }
+
+  unwatchLayer(layer: AnyLayer) {
+    if (layer.ol instanceof LayerGroup) {
+      return;
+    }
+
+    this._unwatchLayer(layer as Layer);
+  }
+
+  private _unwatchLayer(layer: Layer) {
     layer.ol.un('propertychange', (evt) => this.setPropertyChange(evt, layer));
     layer.dataSource.ol.un('propertychange', (evt) =>
       this.setPropertyChange(evt, layer)
     );
     layer.status$.next(SubjectStatus.Done);
+
     const index = this.layers.indexOf(layer);
     if (index >= 0) {
       const status = (layer as any).watcher.status;

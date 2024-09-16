@@ -6,7 +6,6 @@ import { BehaviorSubject, Subscription, combineLatest } from 'rxjs';
 
 import type { MapBase } from '../../../map/shared/map.abstract';
 import { LayerWatcher } from '../../../map/utils';
-import { isLayerItem } from '../../utils/layer.utils';
 import { type AnyLayer } from './any-layer';
 import { LayerGroupBase } from './layer-base';
 import { type LayerGroupOptions } from './layer-group.interface';
@@ -69,9 +68,7 @@ export class LayerGroup extends LayerGroupBase {
     this.children.forEach((layer) => {
       layer.setMap(map, this);
 
-      if (isLayerItem(layer)) {
-        this.layerWatcher.watchLayer(layer);
-      }
+      this.layerWatcher.watchLayer(layer);
     });
   }
 

@@ -6,7 +6,7 @@ import olSourceImage from 'ol/source/Image';
 
 import { ImageArcGISRestDataSource } from '../../../datasource/shared/datasources/imagearcgisrest-datasource';
 import { WMSDataSource } from '../../../datasource/shared/datasources/wms-datasource';
-import { MapBase } from '../../../map/shared/map.abstract';
+import { type MapBase } from '../../../map/shared/map.abstract';
 import { ImageWatcher } from '../../utils/image-watcher';
 import { ImageLayerOptions } from './image-layer.interface';
 import { Layer } from './layer';
