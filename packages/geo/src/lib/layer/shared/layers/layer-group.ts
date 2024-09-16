@@ -106,6 +106,21 @@ export class LayerGroup extends LayerGroupBase {
     this.setChildrenObserver();
   }
 
+  moveTo(parent?: LayerGroup): void {
+    if (parent == null && this.parent == null) {
+      return;
+    }
+
+    if (this.parent) {
+      if (this.parent.id === parent?.id) {
+        return;
+      }
+    }
+
+    this.remove();
+    this.setMap(this.map, parent, true);
+  }
+
   isDescendant(layer: AnyLayer): boolean {
     return this._getDescendants().some(
       (descendant) => descendant.id === layer.id
