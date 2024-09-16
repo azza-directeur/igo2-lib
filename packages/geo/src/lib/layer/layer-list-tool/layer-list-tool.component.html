@@ -7,21 +7,20 @@
 ></igo-layer-search>
 
 <div class="actions-container">
-  <button mat-icon-button [matMenuTriggerFor]="menu">
-    <mat-icon>more_vert</mat-icon>
+  <button
+    mat-icon-button
+    [matTooltip]="
+      selectionActive
+        ? ('igo.geo.layer.deactivateSelectionMode' | translate)
+        : ('igo.geo.layer.activateSelectionMode' | translate)
+    "
+    matTooltipShowDelay="500"
+    (click)="toggleSelectionMode()"
+  >
+    <mat-icon>{{
+      selectionActive ? 'library_add_check' : 'remove_done'
+    }}</mat-icon>
   </button>
-  <mat-menu #menu="matMenu">
-    <button mat-menu-item (click)="toggleSelectionMode()">
-      <mat-icon>{{selectionActive
-            ? 'library_add_check
-            : 'remove_done'}}</mat-icon>
-      {{
-        selectionActive
-          ? ('igo.geo.layer.deactivateSelectionMode' | translate)
-          : ('igo.geo.layer.activateSelectionMode' | translate)
-      }}
-    </button>
-  </mat-menu>
 
   <button
     mat-icon-button
