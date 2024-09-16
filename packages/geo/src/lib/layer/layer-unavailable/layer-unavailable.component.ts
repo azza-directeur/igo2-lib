@@ -27,17 +27,13 @@ export class LayerUnavailableComponent {
   @Output() remove = new EventEmitter<AnyLayerOptions>();
 
   get title(): string | undefined {
-    if (
-      this.layerOptions.sourceOptions &&
-      'params' in this.layerOptions.sourceOptions
-    ) {
-      return this.layerOptions.sourceOptions.params.LAYERS;
-    } else if (
-      this.layerOptions.sourceOptions &&
-      'layer' in this.layerOptions.sourceOptions
-    ) {
-      return this.layerOptions.sourceOptions.layer;
-    }
+    const sourceOptions = this.layerOptions.sourceOptions;
+    return (
+      this.layerOptions.title ??
+      sourceOptions?.['params']?.LAYERS ??
+      sourceOptions?.['params']?.layers ??
+      sourceOptions?.['layer']
+    );
   }
 
   handleRemove(layerOptions: AnyLayerOptions): void {
