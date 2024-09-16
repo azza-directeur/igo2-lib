@@ -54,7 +54,7 @@
       [selected]="isSelected(node.data) || isDescendantSelection(node.data)"
       [selectionDisabled]="isDescendantSelection(node.data)"
       (action)="toggleActive($event)"
-      (expand)="treeControl.toggle(node)"
+      (expand)="treeControl.toggle(node); handleNodeToggle(node)"
       (selectChange)="handleSelect($event, node.data)"
       (visibilityChange)="handleVisibilityChange($event, node)"
     >
@@ -63,6 +63,7 @@
         matTreeNodeToggle
         class="layer-indicator"
         [attr.aria-label]="'Toggle ' + node.data.title"
+        (click)="handleNodeToggle(node)"
       >
         <mat-icon class="mat-icon-rtl-mirror">
           {{

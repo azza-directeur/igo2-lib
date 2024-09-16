@@ -49,7 +49,7 @@ import type { Layer } from '../shared/layers/layer';
 import type { LayerGroup } from '../shared/layers/layer-group';
 import { isLayerGroup, isLayerItem } from '../utils/layer.utils';
 
-type LayerFlatNode = TreeFlatNode<AnyLayer>;
+type LayerFlatNode<T = AnyLayer> = TreeFlatNode<T>;
 
 @Component({
   selector: 'igo-layer-list',
@@ -86,6 +86,7 @@ type LayerFlatNode = TreeFlatNode<AnyLayer>;
 export class LayerListComponent {
   public toggleOpacity = false;
   disabledModel = new SelectionModel<LayerFlatNode>(true);
+  isInit: boolean;
 
   @Input({ required: true }) controller: LayerController;
 
@@ -230,6 +231,10 @@ export class LayerListComponent {
     this.controller.clearSelection();
   }
 
+  handleNodeToggle(node: LayerFlatNode<LayerGroup>): void {
+    node.data.expanded = this.treeControl.isExpanded(node);
+  }
+
   private handleDisabled(node: LayerFlatNode): void {
     const disabled = this.nodeIsDisabled(node);
 
@@ -270,16 +275,46 @@ export class LayerListComponent {
     return this.controller.layersFlattened.find((layer) => layer.id === id);
   }
 
+  private findNodeByLayerId(id: string): LayerFlatNode | undefined {
+    return this.treeControl.dataNodes.find((node) => node.id === id);
+  }
+
   private updateDatasource(layers: AnyLayer[]): void {
     const expansionModel = this.treeControl.expansionModel;
     this.dataSource.data = layers;
 
-    this.restoreModel(expansionModel, (node) => this.treeControl.expand(node));
+    this.isInit
+      ? this.restoreModel(expansionModel, (node) =>
+          this.treeControl.expand(node)
+        )
+      : this.expandGroup(layers);
     this.restoreModel(this.disabledModel, (node) =>
       this.disabledModel.select(node)
     );
 
     this.treeControl.dataNodes.forEach((node) => this.handleDisabled(node));
+
+    if (!this.isInit && layers.length) {
+      this.isInit = true;
+    }
+  }
+
+  /** Recursive */
+  private expandGroup(layers: AnyLayer[]): void {
+    layers.forEach((layer) => {
+      if (!isLayerGroup(layer)) {
+        return;
+      }
+      if (layer.expanded) {
+        const node = this.findNodeByLayerId(layer.id);
+        if (!node) {
+          return;
+        }
+        this.treeControl.expand(node);
+      }
+
+      this.expandGroup(layer.children);
+    });
   }
 
   private restoreModel(

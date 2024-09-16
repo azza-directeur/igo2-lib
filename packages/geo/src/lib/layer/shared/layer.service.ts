@@ -169,7 +169,7 @@ export class LayerService {
     }
 
     return this.createLayers(options.children, detailedContextUri).pipe(
-      map((layers) => this.createGroup(layers, options))
+      map((layers) => this.createGroup(layers.filter(Boolean), options))
     );
   }
 
