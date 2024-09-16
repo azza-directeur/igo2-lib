@@ -195,12 +195,14 @@ export class LayerController extends LayerSelectionModel {
     const position = this.getPosition(layers[0]);
     let index = position.pop();
     this.moveTo(position.concat(--index), ...layers);
+    this._internalMove(layers);
   }
 
   lower(...layers: AnyLayer[]): void {
     const position = this.getPosition(layers[layers.length - 1]);
     const index = position.pop();
     this.moveTo(position.concat(index + 2), ...layers);
+    this._internalMove(layers);
   }
 
   /**
@@ -214,6 +216,12 @@ export class LayerController extends LayerSelectionModel {
 
   getById(id: string): AnyLayer {
     return this.all.find((layer) => layer.id && layer.id === id);
+  }
+
+  getBySourceId(id: string): AnyLayer {
+    return this.all.find(
+      (layer) => layer.dataSource?.id && layer.dataSource.id === id
+    );
   }
 
   getPosition(layer: AnyLayer, type: 'below' | 'above' = 'above'): number[] {
@@ -270,7 +278,7 @@ export class LayerController extends LayerSelectionModel {
     }
   }
 
-  private handleMove(layers: AnyLayer[], parent: LayerGroup): void {
+  private handleMove(layers: AnyLayer[], parent?: LayerGroup): void {
     if (!layers?.length) {
       return;
     }
@@ -278,7 +286,10 @@ export class LayerController extends LayerSelectionModel {
     layers.forEach((layer) => {
       layer.moveTo(parent);
     });
+    this._internalMove(layers);
+  }
 
+  private _internalMove(layers: AnyLayer[]) {
     this.recalculateZindex();
 
     if (layers.some((layer) => isLayerLinked(layer))) {

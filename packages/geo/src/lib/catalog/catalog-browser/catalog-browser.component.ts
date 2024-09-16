@@ -214,7 +214,7 @@ export class CatalogBrowserComponent implements OnInit, OnDestroy {
           this.map.removeLayer(currLayer);
         }
       } else {
-        const currLayer = this.map.getLayerById(layer.id);
+        const currLayer = this.map.layerController.getBySourceId(layer.id);
         if (currLayer !== undefined) {
           this.map.removeLayer(currLayer);
         }

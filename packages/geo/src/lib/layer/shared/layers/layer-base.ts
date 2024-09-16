@@ -107,7 +107,10 @@ export abstract class LayerBase {
   readonly visible$ = this._visible$.asObservable();
 
   get displayed(): boolean {
-    return this.visible && this.isInResolutionsRange;
+    const isVisible = this.parent
+      ? this.parent.displayed && this.visible
+      : this.visible;
+    return isVisible && this.isInResolutionsRange;
   }
   readonly displayed$: Observable<boolean> = combineLatest([
     this.isInResolutionsRange$,
@@ -170,11 +173,14 @@ export abstract class LayerBase {
   }
 
   moveTo(parent?: LayerGroupBase): void {
+    if (parent == null && this.parent == null) {
+      return;
+    }
+
     if (this.parent) {
       if (this.parent.id === parent?.id) {
         return;
       }
-      this.parent.removeChild(this);
     }
 
     this.remove();

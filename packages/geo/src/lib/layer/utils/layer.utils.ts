@@ -1,4 +1,4 @@
-import type {
+import {
   AnyLayer,
   AnyLayerItemOptions,
   AnyLayerOptions,
@@ -21,7 +21,7 @@ export function isLayerItemOptions(
 }
 
 export function isLayerGroup(layer: AnyLayer): layer is LayerGroup {
-  return !!(layer as LayerGroup).children;
+  return layer instanceof LayerGroup;
 }
 
 export function isLayerItem(layer: AnyLayer): layer is Layer {

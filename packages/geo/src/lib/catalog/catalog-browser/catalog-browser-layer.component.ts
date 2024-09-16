@@ -257,10 +257,8 @@ export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
 
   isVisible() {
     if (this.layer?.id) {
-      const oLayer = this.map.getLayerById(this.layer?.id);
-      oLayer
-        ? this.isVisible$.next(oLayer.visible)
-        : this.isVisible$.next(false);
+      const layer = this.map.layerController.getBySourceId(this.layer?.id);
+      this.isVisible$.next(layer?.displayed);
     }
   }
 
