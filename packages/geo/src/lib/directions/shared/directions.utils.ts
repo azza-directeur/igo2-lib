@@ -49,7 +49,7 @@ import {
 export function updateStoreSorting(
   stopsStore: StopsStore,
   direction: 'asc' | 'desc' = 'asc',
-  field: string = 'position'
+  field = 'position'
 ): void {
   stopsStore.view.sort({
     direction,
@@ -412,7 +412,7 @@ export function addRouteToRoutesFeatureStore(
   routesFeatureStore: RoutesFeatureStore,
   directions: Directions,
   projection: string,
-  active: boolean = false
+  active = false
 ): void {
   const coordinate: Coordinate = directions.geometry.coordinates;
   const linestring4326: olGeom.LineString = new olGeom.LineString(coordinate);
@@ -520,8 +520,8 @@ export function formatStep(
     languageService
   );
 
-  let iconName: string = 'straight'; // arrow point up by default
-  let instruction: string = '';
+  let iconName = 'straight'; // arrow point up by default
+  let instruction = '';
 
   if (maneuverType === ManeuverType.Turn) {
     if (

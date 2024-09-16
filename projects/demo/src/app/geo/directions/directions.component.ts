@@ -68,7 +68,7 @@ export class AppDirectionsComponent {
   public routesFeatureStore: RoutesFeatureStore = new RoutesFeatureStore([], {
     map: this.map
   });
-  public zoomOnActiveRoute$: Subject<void> = new Subject();
+  public zoomOnActiveRoute$ = new Subject<void>();
 
   public authenticated$: BehaviorSubject<boolean>;
 

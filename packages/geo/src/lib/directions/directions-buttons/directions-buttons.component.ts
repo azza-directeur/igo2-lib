@@ -48,12 +48,12 @@ import {
 })
 export class DirectionsButtonsComponent {
   @Input() contextUri: string;
-  @Input() zoomOnActiveRoute$: Subject<void> = new Subject();
+  @Input() zoomOnActiveRoute$ = new Subject<void>();
   @Input() stopsStore: StopsStore;
   @Input() routesFeatureStore: RoutesFeatureStore;
   @Input() stepsFeatureStore: StepsFeatureStore;
 
-  public downloadDirectionsBtnDisabled: boolean = false;
+  public downloadDirectionsBtnDisabled = false;
 
   constructor(
     private languageService: LanguageService,
@@ -139,8 +139,8 @@ export class DirectionsButtonsComponent {
    * @return {string} The directions in text format.
    */
   private directionsToText(): string {
-    const indent: string = '\t';
-    const newLine: string = '\n';
+    const indent = '\t';
+    const newLine = '\n';
 
     // Summary
     let summary: string =
@@ -173,10 +173,10 @@ export class DirectionsButtonsComponent {
       ':' +
       newLine;
 
-    let stopNumber: number = 1;
+    let stopNumber = 1;
     this.stopsStore.view.all().forEach((stop: Stop) => {
-      let coords: string = '';
-      let stopText: string = '';
+      let coords = '';
+      let stopText = '';
       if (stop.text !== roundCoordToString(stop.coordinates, 6).join(', ')) {
         stopText = stop.text;
         coords = ` (${roundCoordToString(stop.coordinates, 6).join(', ')})`;
@@ -269,7 +269,7 @@ export class DirectionsButtonsComponent {
       return;
     }
 
-    let context: string = '';
+    let context = '';
     if (this.contextUri) {
       context = `context=${this.contextUri}&`;
     }
@@ -278,7 +278,7 @@ export class DirectionsButtonsComponent {
       .all()
       .map((direction: FeatureWithDirections) => direction.properties.id)
       .indexOf(this.activeRoute.properties.id);
-    let routingOptions: string = '';
+    let routingOptions = '';
     if (routeIndex !== 0) {
       const routingOptionsKey: string | boolean =
         this.routeService.options.directionsOptionsKey;
@@ -289,7 +289,7 @@ export class DirectionsButtonsComponent {
     const stopsCoordinates: Coordinate[] = this.stopsStore.view
       .all()
       .map((stop: Stop) => roundCoordTo(stop.coordinates, 6));
-    let directionsUrl: string = '';
+    let directionsUrl = '';
     if (stopsCoordinates.length >= 2) {
       directionsUrl = `${directionsKey}=${stopsCoordinates.join(';')}`;
       return `${location.origin}${location.pathname}?${context}tool=directions&sidenav=1&${directionsUrl}${routingOptions}`;

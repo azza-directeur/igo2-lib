@@ -16,7 +16,6 @@ import { Observable, Subject } from 'rxjs';
 
 import { IgoMap } from '../../map/shared/map';
 import { PrintService } from '../../print/shared/print.service';
-import { PrintLegendPosition } from '../../print/shared/print.type';
 import { DirectionsSource } from '../directions-sources/directions-source';
 import { DirectionOptions, Directions } from '../shared/directions.interface';
 import { DirectionsSourceService } from './directions-source.service';
@@ -96,16 +95,9 @@ export class DirectionsService {
       align: 'center'
     });
 
-    const resolution: number = 96; // Default is 96
+    const resolution = 96; // Default is 96
     this.printService
-      .addMap(
-        doc,
-        map,
-        resolution,
-        imageDimensions,
-        margins,
-        PrintLegendPosition.none
-      )
+      .addMap(doc, map, resolution, imageDimensions, margins)
       .subscribe(async (status: SubjectStatus) => {
         if (status === SubjectStatus.Done) {
           await this.addInstructions(doc, directions, title);
@@ -125,7 +117,7 @@ export class DirectionsService {
     doc: jsPDF,
     margins: [number, number, number, number]
   ) {
-    const verticalSpacing: number = 5;
+    const verticalSpacing = 5;
     const attributionText: string = this.printService.getAttributionText(map);
     if (attributionText) {
       margins[2] += verticalSpacing;
@@ -152,12 +144,11 @@ export class DirectionsService {
     const table: HTMLTableElement = document.createElement('table');
     const tblBody: HTMLTableSectionElement = document.createElement('tbody');
 
-    for (let stepIndex = 0; stepIndex < steps.length; stepIndex++) {
-      const step = steps[stepIndex];
-      let row: HTMLTableRowElement = document.createElement('tr');
+    for (const step of steps) {
+      const row: HTMLTableRowElement = document.createElement('tr');
 
       // icon
-      let cellIcon: HTMLTableCellElement = document.createElement('td');
+      const cellIcon: HTMLTableCellElement = document.createElement('td');
       const iconElement: HTMLImageElement = document.createElement('img');
       iconElement.style.verticalAlign = 'middle';
       iconElement.src = step.icon;
@@ -165,7 +156,7 @@ export class DirectionsService {
       row.append(cellIcon);
 
       // instruction
-      let cellText: HTMLTableCellElement = document.createElement('td');
+      const cellText: HTMLTableCellElement = document.createElement('td');
       const spanInstructionElement: HTMLSpanElement =
         document.createElement('span');
       spanInstructionElement.style.verticalAlign = 'middle';
@@ -206,14 +197,9 @@ export class DirectionsService {
     const matListItemElements: HTMLCollectionOf<Element> =
       matListElement.getElementsByTagName('mat-list-item');
     // convert icons list to base64
-    let icons: { name: string; icon: string }[] = [];
-    for (
-      let matListItemElementIndex = 0;
-      matListItemElementIndex < matListItemElements.length;
-      matListItemElementIndex++
-    ) {
-      const element: Element = matListItemElements[matListItemElementIndex];
-      const iconElement: HTMLElement = element.getElementsByTagName(
+    const icons: { name: string; icon: string }[] = [];
+    for (const matListItemElement of Array.from(matListItemElements)) {
+      const iconElement: HTMLElement = matListItemElement.getElementsByTagName(
         'mat-icon'
       )[0] as HTMLElement;
       const iconName: string = iconElement.innerText;
@@ -224,7 +210,7 @@ export class DirectionsService {
       }
     }
 
-    let formattedSteps: {
+    const formattedSteps: {
       instruction: string;
       icon: string;
       distanceDuration: string;

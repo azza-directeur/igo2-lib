@@ -24,10 +24,9 @@ export interface DirectionOptions {
   continue_straight?: boolean;
 }
 
-export interface FeatureWithStop extends Feature<FeatureWithStopProperties> {}
-export interface FeatureWithDirections
-  extends Feature<FeatureWithDirectionsProperties> {}
-export interface FeatureWithStep extends Feature<FeatureWithStepProperties> {}
+export type FeatureWithStop = Feature<FeatureWithStopProperties>;
+export type FeatureWithDirections = Feature<FeatureWithDirectionsProperties>;
+export type FeatureWithStep = Feature<FeatureWithStepProperties>;
 
 export interface FeatureWithStepProperties {
   id: string;
@@ -64,7 +63,7 @@ export interface Stop {
 export interface SourceProposal {
   type: ProposalType;
   source: SearchSource;
-  results: { [key: string]: any }[];
+  results: Record<string, any>[];
   meta: SearchMeta;
 }
 

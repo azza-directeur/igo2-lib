@@ -36,7 +36,7 @@ import { Coordinate } from 'ol/coordinate';
   providedIn: 'root'
 })
 export class MapProximityState {
-  private defaultProximityRadiusValue: number = 30;
+  private defaultProximityRadiusValue = 30;
 
   public enabled$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
@@ -46,8 +46,9 @@ export class MapProximityState {
     new BehaviorSubject<string>('geolocation');
   public proximityFeatureStore: FeatureStore<Feature>;
   private subs$$: Subscription[] = [];
-  public currentPositionCoordinate$: BehaviorSubject<Coordinate> =
-    new BehaviorSubject(undefined);
+  public currentPositionCoordinate$ = new BehaviorSubject<Coordinate>(
+    undefined
+  );
 
   get map(): IgoMap {
     return this.mapState.map;
@@ -147,7 +148,7 @@ export class MapProximityState {
                     olFeatureAtCoordinate,
                     this.map.projection
                   );
-                  let title = this.getQueryTitle(
+                  const title = this.getQueryTitle(
                     featureAtThisPosition,
                     layerToMonitor
                   );
@@ -181,7 +182,7 @@ export class MapProximityState {
                     'EPSG:3857'
                   );
                   if (lineLength <= proximityRadiusValue) {
-                    let title = this.getQueryTitle(
+                    const title = this.getQueryTitle(
                       closestFeature,
                       layerToMonitor
                     );

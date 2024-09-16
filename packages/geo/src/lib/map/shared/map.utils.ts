@@ -6,7 +6,6 @@ import * as olproj from 'ol/proj';
 
 import { MapViewState } from './map.interface';
 import { Projection } from './projection.interfaces';
-import { Position } from 'geojson';
 import { Coordinate } from 'ol/coordinate';
 
 /**
@@ -81,7 +80,6 @@ export function stringToLonLat(
   const patternDmd = `${dmdCoord}\\s*[,.]?\\s*${dmdCoord}`;
   const dmdRegex = new RegExp(`^${patternDmd}`, 'g');
 
-  /* eslint-disable max-len */
   const patternBELL =
     'LAT\\s*[\\s:]*\\s*([-+])?(\\d{1,2})[\\s.,]?(\\d+)?[\\s.,]?\\s*(\\d{1,2}([.,]\\d+)?)?\\s*(N|S|E|W)?\\s*LONG\\s*[\\s:]*\\s*([-+])?(\\d{1,3})[\\s.,]?(\\d+)?[\\s.,]?\\s*(\\d{1,2}([.,]\\d+)?)?\\s*(N|S|E|W)?\\s*UNC\\s*[\\s:]?\\s*(\\d+)\\s*CONF\\s*[\\s:]?\\s*(\\d{1,3})';
   const bellRegex = new RegExp(`^${patternBELL}?`, 'gi');
@@ -308,7 +306,7 @@ export function stringToLonLat(
 
     try {
       lonLat = olproj.transform(lonLat, source, dest) as [number, number];
-    } catch (e) {
+    } catch {
       return {
         lonLat: undefined,
         message: 'Projection ' + source + ' not supported',
@@ -366,8 +364,8 @@ function convertDMSToDD(
  * @returns longitude and latitude in dms
  */
 export function convertDDToDMS(
-  lonLatDD: Coordinate,
-  decimal: number = 3
+  lonLatDD: [number, number],
+  decimal = 3
 ): string[] {
   const lonLatDMS = [];
 
@@ -432,10 +430,7 @@ export function formatScale(scale) {
  * @param dpi DPI
  * @returns Resolution
  */
-export function getResolutionFromScale(
-  scale: number,
-  dpi: number = 96
-): number {
+export function getResolutionFromScale(scale: number, dpi = 96): number {
   const inchesPerMeter = 39.3701;
   return scale / (inchesPerMeter * dpi);
 }
@@ -447,8 +442,8 @@ export function getResolutionFromScale(
  */
 export function getScaleFromResolution(
   resolution: number,
-  unit: string = 'm',
-  dpi: number = 96
+  unit = 'm',
+  dpi = 96
 ): number {
   const inchesPerMeter = 39.3701;
   return resolution * olproj.METERS_PER_UNIT[unit] * inchesPerMeter * dpi;
@@ -469,8 +464,8 @@ export function ctrlKeyDown(event: MapBrowserPointerEvent<any>): boolean {
 }
 
 export function roundCoordTo(
-  coord: [number, number] | Position | Coordinate,
-  decimal: number = 3
+  coord: Coordinate,
+  decimal = 3
 ): Coordinate {
   return [
     NumberUtils.roundToNDecimal(coord[0], decimal),
@@ -479,8 +474,8 @@ export function roundCoordTo(
 }
 
 export function roundCoordToString(
-  coord: [number, number] | Position | Coordinate,
-  decimal: number = 3
+  coord: Coordinate,
+  decimal = 3
 ): [string, string] {
   return roundCoordTo(coord, decimal).map((r) => r.toString() + "°") as [
     string,
