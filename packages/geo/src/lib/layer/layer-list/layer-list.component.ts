@@ -43,6 +43,7 @@ import { LayerGroupComponent } from '../layer-group';
 import { LayerItemComponent } from '../layer-item';
 import { LayerListToolComponent } from '../layer-list-tool';
 import type { LayerViewerOptions } from '../layer-viewer/layer-viewer.interface';
+import { LayerType } from '../shared';
 import type { LayerController } from '../shared/layer-controller';
 import type { AnyLayer } from '../shared/layers/any-layer';
 import type { Layer } from '../shared/layers/layer';
@@ -161,12 +162,25 @@ export class LayerListComponent {
     checked ? this.controller.select(layer) : this.controller.deselect(layer);
   }
 
-  getLayerIcon(layer: Layer): string | IconSvg {
+  getLayerType(layer: Layer): LayerType | 'measure' | 'draw' {
     return layer.type === 'raster'
-      ? 'image'
+      ? 'raster'
       : layer.id.includes('measure')
+        ? 'measure'
+        : layer.id.includes('draw')
+          ? 'draw'
+          : 'vector';
+  }
+
+  getLayerIcon(layer: Layer): string | IconSvg {
+    const type = this.getLayerType(layer);
+    return type === 'raster'
+      ? 'image'
+      : type === 'measure'
         ? 'square_foot'
-        : VECTOR_SQUARE_ICON;
+        : type === 'draw'
+          ? 'draw'
+          : VECTOR_SQUARE_ICON;
   }
 
   handleVisibilityChange(_event: Event, node: LayerFlatNode): void {

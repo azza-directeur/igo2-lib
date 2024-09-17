@@ -75,9 +75,11 @@ export class LayerGroupComponent implements OnInit {
   get tooltipMessage(): string {
     return !this.layer.isInResolutionsRange
       ? 'igo.geo.layer.notInResolution'
-      : this.layer.visible
-        ? 'igo.geo.layer.group.hide'
-        : 'igo.geo.layer.group.show';
+      : this.layer.visible && this.disabled
+        ? 'igo.geo.layer.group.hideChildren'
+        : this.layer.visible
+          ? 'igo.geo.layer.group.hide'
+          : 'igo.geo.layer.group.show';
   }
 
   ngOnInit(): void {

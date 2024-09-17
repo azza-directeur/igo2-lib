@@ -101,9 +101,11 @@ export class LayerItemComponent implements OnInit, OnDestroy {
     ) {
       return 'igo.geo.layer.notInResolution';
     } else {
-      return this.layer.visible
-        ? 'igo.geo.layer.hideLayer'
-        : 'igo.geo.layer.showLayer';
+      return this.layer.visible && this.disabled
+        ? 'igo.geo.layer.group.hideChildren'
+        : this.layer.visible
+          ? 'igo.geo.layer.hideLayer'
+          : 'igo.geo.layer.showLayer';
     }
   }
 

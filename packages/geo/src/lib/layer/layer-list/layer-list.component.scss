@@ -20,6 +20,18 @@ igo-layer-item {
 
   .layer-indicator {
     color: rgba(0, 0, 0, 0.38) !important;
+
+    mat-icon {
+      $size: 18px;
+      height: $size;
+      width: $size;
+      font-size: $size;
+
+      ::ng-deep svg {
+        height: $size;
+        width: $size;
+      }
+    }
   }
 }
 

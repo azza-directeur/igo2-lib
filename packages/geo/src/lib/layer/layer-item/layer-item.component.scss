@@ -10,7 +10,7 @@
   }
 
   .list-actions {
-    margin-left: 8px;
+    margin-left: 4px;
     margin-right: 4px;
 
     ::ng-deep button {
@@ -28,6 +28,16 @@
 .igo-layer-title {
   display: block;
   cursor: pointer;
+
+  max-height: 48px;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  box-orient: vertical;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
 }
 
 .igo-layer-list-item {

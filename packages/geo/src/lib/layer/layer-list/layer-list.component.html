@@ -28,14 +28,20 @@
       (visibilityChange)="handleVisibilityChange($event, node)"
     >
       <!-- use a disabled button to provide padding for tree leaf -->
-      <button
-        mat-icon-button
-        class="layer-indicator"
-        disabled
-        [title]="node.data.type"
+      <span
+        [matTooltip]="
+          'igo.geo.layer.type.' + getLayerType(node.data) | translate
+        "
       >
-        <igo-icon [icon]="getLayerIcon(node.data)"></igo-icon>
-      </button>
+        <button
+          mat-icon-button
+          class="layer-indicator"
+          disabled
+          [title]="getLayerType(node.data)"
+        >
+          <igo-icon [icon]="getLayerIcon(node.data)"></igo-icon>
+        </button>
+      </span>
     </igo-layer-item>
   </mat-tree-node>
   <!-- This is the tree node template for expandable nodes -->

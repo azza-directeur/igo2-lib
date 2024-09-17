@@ -44,9 +44,11 @@ export class LayerVisibilityButtonComponent {
   get defaultTooltip(): string {
     return !this.layer.isInResolutionsRange
       ? 'igo.geo.layer.notInResolution'
-      : this.layer.visible
-        ? 'igo.geo.layer.hideLayer'
-        : 'igo.geo.layer.showLayer';
+      : this.layer.visible && this.disabled
+        ? 'igo.geo.layer.group.hideChildren'
+        : this.layer.visible
+          ? 'igo.geo.layer.hideLayer'
+          : 'igo.geo.layer.showLayer';
   }
 
   @Output() visibilityChange = new EventEmitter<Event>();
