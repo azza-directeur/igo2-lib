@@ -476,7 +476,7 @@ export class ContextService {
       layers.unshift(baseLayer);
     }
 
-    context.layers = this.formatLayers(layers);
+    context.layers = layers.map((layer) => layer.saveableOptions);
 
     context.tools = this.tools.map((tool) => {
       return {
@@ -486,31 +486,6 @@ export class ContextService {
     });
 
     return context;
-  }
-
-  private formatLayers(layers: AnyLayer[]): AnyLayerOptions[] {
-    return layers
-      .map((layer) =>
-        isLayerItem(layer)
-          ? this.formatLayer(layer, layers)
-          : layer.saveableOptions
-      )
-      .filter(Boolean);
-  }
-
-  private formatLayer(layer: Layer, layers: AnyLayer[]): AnyLayerOptions {
-    if (isBaseLayer(layer) && !layer.visible) {
-      return;
-    }
-
-    const linkedParent = getLinkedLayerParent(layer, layers);
-    if (linkedParent && isBaseLayer(linkedParent) && !linkedParent.visible) {
-      return;
-    }
-
-    if (layer.options.sourceOptions?.type) {
-      return layer.saveableOptions;
-    }
   }
 
   getContextFromLayers(

@@ -28,6 +28,14 @@ export function isLayerItem(layer: AnyLayer): layer is Layer {
   return !isLayerGroup(layer);
 }
 
+export function isBaseLayer(layer: AnyLayer): layer is Layer {
+  return !isLayerGroup(layer) && layer.baseLayer;
+}
+
+function isInternalLayer(layer: AnyLayer): boolean {
+  return layer.isIgoInternalLayer;
+}
+
 export function isLayerLinked(layer: AnyLayer): layer is Layer {
   return isLayerItem(layer) && !!layer.options.linkedLayers;
 }
@@ -117,10 +125,6 @@ export function getLinkedLayerOptionsParent(
   });
 }
 
-export function isBaseLayer(layer: AnyLayer): layer is Layer {
-  return !isLayerGroup(layer) && layer.baseLayer;
-}
-
 export function computeMVTOptionsOnHover(layerOptions: AnyLayerItemOptions) {
   const vectorTileLayerOptions = layerOptions as VectorTileLayerOptions;
   if (
@@ -132,4 +136,22 @@ export function computeMVTOptionsOnHover(layerOptions: AnyLayerItemOptions) {
     vectorTileLayerOptions.sourceOptions.featureClass = fc ? fc : 'feature';
   }
   return layerOptions;
+}
+
+export function isSaveableLayer(layer: AnyLayer): boolean {
+  if (isLayerGroup(layer)) {
+    return true;
+  }
+
+  if (isBaseLayer(layer) && !layer.visible) {
+    return false;
+  }
+
+  if (isInternalLayer(layer)) {
+    return false;
+  }
+
+  if (layer.options.sourceOptions?.type) {
+    return true;
+  }
 }

@@ -7,7 +7,6 @@ import {
   MapBrowserComponent,
   StyleListService,
   StyleService,
-  generateId,
   isLayerGroupOptions
 } from '@igo2/geo';
 import type { AnyLayer, AnyLayerOptions, IgoMap } from '@igo2/geo';
@@ -126,40 +125,6 @@ export class LayerContextDirective implements OnInit, OnDestroy {
       }
       return accumulator;
     }, []);
-  }
-
-  private assignUniqueLayerOptionNames(options: AnyLayerOptions[]): void {
-    const flattenedOptions = this.getFlattenOptions(options);
-
-    flattenedOptions.reduce((names, option) => {
-      if (!option.name) {
-        option.name = this.getLayerName(option, names);
-      }
-      return names.concat(option.name);
-    }, []);
-  }
-
-  private getLayerName(
-    layer: AnyLayerOptions,
-    names: string[],
-    suffix?: number
-  ): string {
-    let name = String(
-      layer.id ??
-        layer.name ??
-        layer.title?.replaceAll(' ', '_').toLowerCase() ??
-        generateId()
-    );
-
-    if (suffix != null) {
-      name += `_${suffix}`;
-    }
-
-    if (names.includes(name)) {
-      name = this.getLayerName(layer, names, suffix ? suffix++ : 1);
-    }
-
-    return name;
   }
 
   private handleAddLayers(layers: (AnyLayer | undefined)[]) {

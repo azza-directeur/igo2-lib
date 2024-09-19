@@ -6,6 +6,7 @@ import { BehaviorSubject, Subscription, combineLatest } from 'rxjs';
 
 import type { MapBase } from '../../../map/shared/map.abstract';
 import { LayerWatcher } from '../../../map/utils';
+import { isSaveableLayer } from '../../utils';
 import { type AnyLayer } from './any-layer';
 import { LayerGroupBase } from './layer-base';
 import { type LayerGroupOptions } from './layer-group.interface';
@@ -27,7 +28,9 @@ export class LayerGroup extends LayerGroupBase {
       ...super.saveableOptions,
       id: String(this.options.id).includes(ID_PREFIX) ? null : this.options.id,
       type: this.options.type,
-      children: this.children.map((layer) => layer.saveableOptions),
+      children: [...this.children]
+        .filter((layer) => isSaveableLayer(layer))
+        .map((layer) => layer.saveableOptions),
       expanded: this.expanded
     };
   }
