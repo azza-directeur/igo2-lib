@@ -9,6 +9,7 @@
 <div class="actions-container">
   <button
     mat-icon-button
+    [color]="selectionActive ? 'warn' : 'primary'"
     [matTooltip]="
       selectionActive
         ? ('igo.geo.layer.deactivateSelectionMode' | translate)

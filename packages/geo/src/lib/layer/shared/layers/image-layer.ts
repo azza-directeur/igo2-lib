@@ -10,7 +10,7 @@ import { type MapBase } from '../../../map/shared/map.abstract';
 import { ImageWatcher } from '../../utils/image-watcher';
 import { ImageLayerOptions } from './image-layer.interface';
 import { Layer } from './layer';
-import { LayerGroup } from './layer-group';
+import { type LayerGroup } from './layer-group';
 import { LayerType } from './layer.interface';
 
 export class ImageLayer extends Layer {

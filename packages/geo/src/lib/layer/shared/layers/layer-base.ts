@@ -189,6 +189,7 @@ export abstract class LayerBase {
 }
 
 export abstract class LayerGroupBase extends LayerBase {
+  type: LayerType = 'group';
   children: LayerBase[];
 
   abstract get descendants(): LayerBase[];

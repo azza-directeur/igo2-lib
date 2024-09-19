@@ -5,17 +5,14 @@ import { Group } from 'ol/layer.js';
 import { BehaviorSubject, Subscription, combineLatest } from 'rxjs';
 
 import type { MapBase } from '../../../map/shared/map.abstract';
-import { LayerWatcher } from '../../../map/utils';
-import { isSaveableLayer } from '../../utils';
+import { LayerWatcher } from '../../../map/utils/layer-watcher';
 import { type AnyLayer } from './any-layer';
 import { LayerGroupBase } from './layer-base';
 import { type LayerGroupOptions } from './layer-group.interface';
-import { type LayerType } from './layer.interface';
 
 const ID_PREFIX = 'local-group_';
 
 export class LayerGroup extends LayerGroupBase {
-  type: LayerType = 'group';
   parent: LayerGroup;
   declare ol: Group;
   expanded: boolean;
@@ -29,8 +26,8 @@ export class LayerGroup extends LayerGroupBase {
       id: String(this.options.id).includes(ID_PREFIX) ? null : this.options.id,
       type: this.options.type,
       children: [...this.children]
-        .filter((layer) => isSaveableLayer(layer))
-        .map((layer) => layer.saveableOptions),
+        .map((layer) => layer.saveableOptions)
+        .filter(Boolean),
       expanded: this.expanded
     };
   }

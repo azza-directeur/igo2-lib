@@ -1,4 +1,4 @@
-import {
+import type {
   AnyLayer,
   AnyLayerItemOptions,
   AnyLayerOptions,
@@ -21,7 +21,7 @@ export function isLayerItemOptions(
 }
 
 export function isLayerGroup(layer: AnyLayer): layer is LayerGroup {
-  return layer instanceof LayerGroup;
+  return layer.type === 'group';
 }
 
 export function isLayerItem(layer: AnyLayer): layer is Layer {
@@ -29,7 +29,7 @@ export function isLayerItem(layer: AnyLayer): layer is Layer {
 }
 
 export function isBaseLayer(layer: AnyLayer): layer is Layer {
-  return !isLayerGroup(layer) && layer.baseLayer;
+  return isLayerItem(layer) && layer.baseLayer;
 }
 
 function isInternalLayer(layer: AnyLayer): boolean {
@@ -138,11 +138,7 @@ export function computeMVTOptionsOnHover(layerOptions: AnyLayerItemOptions) {
   return layerOptions;
 }
 
-export function isSaveableLayer(layer: AnyLayer): boolean {
-  if (isLayerGroup(layer)) {
-    return true;
-  }
-
+export function isSaveableLayer(layer: Layer): boolean {
   if (isBaseLayer(layer) && !layer.visible) {
     return false;
   }

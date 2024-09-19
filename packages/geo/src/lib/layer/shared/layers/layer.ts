@@ -10,6 +10,7 @@ import { DataSource, Legend } from '../../../datasource/shared/datasources';
 import type { MapBase } from '../../../map/shared/map.abstract';
 import { GeoDBService } from '../../../offline/geoDB/geoDB.service';
 import { LayerDBService } from '../../../offline/layerDB/layerDB.service';
+import { isSaveableLayer } from '../../utils/layer.utils';
 import { LayerBase, LayerGroupBase } from './layer-base';
 import { type LayerGroup } from './layer-group';
 import { LayerOptions } from './layer.interface';
@@ -60,7 +61,11 @@ export abstract class Layer extends LayerBase {
     this.updateInResolutionsRange();
   }
 
-  get saveableOptions(): Partial<LayerOptions> {
+  get saveableOptions(): Partial<LayerOptions> | undefined {
+    if (!isSaveableLayer(this)) {
+      return undefined;
+    }
+
     return {
       ...super.saveableOptions,
       sourceOptions: this.dataSource.saveableOptions
