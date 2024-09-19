@@ -10,7 +10,8 @@ import { FeatureStore } from './store';
  * @param layer An optional VectorLayer
  */
 export function tryBindStoreLayer(store: FeatureStore, layer?: VectorLayer) {
-  if (store.layer !== undefined) {
+  const hasNewLayer = layer && (!store.layer || store.layer.id !== layer.id);
+  if (store.layer !== undefined && !hasNewLayer) {
     if (store.layer.map === undefined) {
       store.map.addLayer(store.layer);
     }

@@ -154,8 +154,7 @@ export class IgoMap implements MapBase {
         );
       }
 
-      // TODO(MIGO2-492): how to sync linked layer cleanly
-      this.layerController.layers$
+      this.layerController.all$
         .pipe(pairwise())
         .subscribe(([prevLayers, currentLayers]) => {
           let prevLayersId;

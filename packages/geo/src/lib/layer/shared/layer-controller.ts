@@ -10,11 +10,12 @@ import {
 } from '../../map/shared/linkedLayers.utils';
 import { type MapBase } from '../../map/shared/map.abstract';
 import {
+  getLinkedLayerParentIndex,
   isBaseLayer,
-  isBaseLayerLinked,
   isLayerGroup,
   isLayerItem,
-  isLayerLinked
+  isLayerLinked,
+  isLayerLinkedParent
 } from '../utils/layer.utils';
 import { LayerSelectionModel } from './layer-selection';
 import { AnyLayer } from './layers/any-layer';
@@ -28,19 +29,22 @@ const ZINDEX_MIN = 10;
 export class LayerController extends LayerSelectionModel {
   private tree: Tree<AnyLayer>;
   private _baseLayers: Layer[] = [];
+  /** Measure, Drawing, Selection, Hovering, LinkedLayer not in tree, etc... */
   private _systemLayers: AnyLayer[] = [];
 
-  private _layers$ = new BehaviorSubject<AnyLayer[]>([]);
+  private _layers$ = new BehaviorSubject<AnyLayer[] | undefined>(undefined);
   layers$ = this._layers$.asObservable();
 
   layersFlattened$ = this._layers$
     .asObservable()
     .pipe(map(() => this.layersFlattened));
 
-  private _systemLayers$ = new BehaviorSubject<AnyLayer[]>([]);
+  private _systemLayers$ = new BehaviorSubject<AnyLayer[] | undefined>(
+    undefined
+  );
   systemLayers$ = this._systemLayers$.asObservable();
 
-  private _baseLayers$ = new BehaviorSubject<Layer[]>([]);
+  private _baseLayers$ = new BehaviorSubject<Layer[] | undefined>(undefined);
   baseLayers$ = this._baseLayers$.asObservable();
 
   baseLayerSelection: Layer;
@@ -98,10 +102,13 @@ export class LayerController extends LayerSelectionModel {
   }
 
   add(...layers: AnyLayer[]): void {
-    const offset = 0;
+    let offset = 0;
+
+    this.fixLinkedLayersOrder(layers);
+
     const addedLayers = layers
       .map((layer) => this.handleAdd(layer, offset))
-      .filter((layer) => layer !== undefined);
+      .filter(Boolean);
 
     if (!addedLayers.length) {
       return;
@@ -205,12 +212,12 @@ export class LayerController extends LayerSelectionModel {
     this._internalMove(layers);
   }
 
-  /**
-   * Remove all layers
-   */
   clear(): void {
     this.clearBaselayers();
+    this.clearSystems();
     this.clearTree();
+    this.clearSelection();
+
     this.notify();
   }
 
@@ -339,7 +346,7 @@ export class LayerController extends LayerSelectionModel {
 
     layer.setMap(this._map, null);
 
-    if (isBaseLayer(layer) || isBaseLayerLinked(layer, this.all)) {
+    if (isBaseLayer(layer)) {
       if (layer.visible) {
         this.selectBaseLayer(layer);
       }
@@ -347,9 +354,17 @@ export class LayerController extends LayerSelectionModel {
       return;
     } else if (this.isSystemLayer(layer)) {
       this._systemLayers.push(layer);
+      if (layer.showInLayerList) {
+        return layer;
+      }
+      return;
     }
 
-    return layer.showInLayerList ? layer : undefined;
+    if (layer.showInLayerList) {
+      return layer;
+    } else {
+      this._systemLayers.push(layer);
+    }
   }
 
   private _remove(layer: AnyLayer): AnyLayer | AnyLayer[] {
@@ -389,7 +404,7 @@ export class LayerController extends LayerSelectionModel {
   private handleLinkedLayersDeletion(layer: Layer): AnyLayer[] {
     let rootParentByDeletion = getRootParentByDeletion(layer, this.all);
     if (!rootParentByDeletion) {
-      rootParentByDeletion = layer;
+      return [layer];
     }
     return getAllChildLayersByDeletion(this.all, rootParentByDeletion, [
       rootParentByDeletion
@@ -397,13 +412,20 @@ export class LayerController extends LayerSelectionModel {
   }
 
   private clearBaselayers(): void {
-    this.baseLayers.forEach((layer) => layer.remove());
+    this.baseLayers.forEach((layer) => this._remove(layer));
+    this._baseLayers$.next([]);
     this._baseLayers = [];
   }
 
   private clearTree(): void {
-    this.treeLayers.forEach((layer) => layer.remove());
+    this.treeLayers.forEach((layer) => this._remove(layer));
     this.tree.clear();
+  }
+
+  private clearSystems(): void {
+    this.systemLayers.forEach((layer) => this._remove(layer));
+    this._systemLayers$.next([]);
+    this._systemLayers = [];
   }
 
   private getZindexOffset(layer: AnyLayer, previousOffset = 0): number {
@@ -434,5 +456,23 @@ export class LayerController extends LayerSelectionModel {
     this._layers$.next(this.treeLayers);
     this._systemLayers$.next(this.systemLayers);
     this._baseLayers$.next(this.baseLayers);
+  }
+
+  private fixLinkedLayersOrder(layers: AnyLayer[]): void {
+    const linkedLayersChild = layers.filter((layer) => {
+      if (isLayerLinked(layer) && !isLayerLinkedParent(layer)) {
+        return true;
+      }
+      return false;
+    }) as Layer[];
+
+    linkedLayersChild.forEach((layer) => {
+      const parentIndex = getLinkedLayerParentIndex(layer, layers);
+      const index = layers.findIndex((l) => l.id === layer.id);
+      if (parentIndex > index) {
+        layers.splice(parentIndex + 1, 0, layer);
+        layers.splice(index, 1);
+      }
+    });
   }
 }

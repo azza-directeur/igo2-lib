@@ -50,7 +50,7 @@ export class BaseLayersSwitcherComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.map.layerController.baseLayers$.subscribe((layers) => {
-      this._baseLayers = layers;
+      this._baseLayers = layers ?? [];
     });
   }
 

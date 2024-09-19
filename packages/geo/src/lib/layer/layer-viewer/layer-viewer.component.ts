@@ -6,7 +6,6 @@ import {
   ContentChild,
   EventEmitter,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   TemplateRef
@@ -61,7 +60,7 @@ import { LayerToolMode, LayerViewerOptions } from './layer-viewer.interface';
   ],
   standalone: true
 })
-export class LayerViewerComponent implements OnInit, OnDestroy {
+export class LayerViewerComponent implements OnInit {
   layers: AnyLayer[];
   keyword$ = new BehaviorSubject<string>(undefined);
   mode: LayerToolMode;
@@ -104,6 +103,9 @@ export class LayerViewerComponent implements OnInit, OnDestroy {
     combineLatest([this.layerController.layers$, this.keyword$])
       .pipe(debounceTime(10))
       .subscribe(([layers, keyword]) => {
+        if (!layers) {
+          return;
+        }
         this.layers = this.computeLayers(layers, keyword);
         this.cdr.markForCheck();
       });
@@ -118,10 +120,6 @@ export class LayerViewerComponent implements OnInit, OnDestroy {
           keyword
         });
       });
-  }
-
-  ngOnDestroy(): void {
-    this.layerController.clearSelection();
   }
 
   clearKeyword() {

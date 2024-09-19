@@ -32,6 +32,14 @@ export function isLayerLinked(layer: AnyLayer): layer is Layer {
   return isLayerItem(layer) && !!layer.options.linkedLayers;
 }
 
+export function isLayerLinkedParent(layer: AnyLayer): layer is Layer {
+  return (
+    isLayerItem(layer) &&
+    !!layer.options.linkedLayers &&
+    !!layer.options.linkedLayers.links
+  );
+}
+
 export function isLayerLinkedOptions(
   options: AnyLayerOptions
 ): options is AnyLayerItemOptions {
@@ -58,20 +66,34 @@ export function getLinkedLayerParent(
     return;
   }
 
-  return layers.find((list_layer) => {
-    if (!isLayerItem(list_layer)) {
-      return;
-    }
-    const links = list_layer.options.linkedLayers?.links;
-    if (links) {
-      return links.some((link) =>
-        link.linkedIds.includes(layer.options.linkedLayers.linkId)
-      );
-    }
-
-    return false;
-  });
+  return layers.find((list_layer) => _isLinkedParent(layer, list_layer));
 }
+
+export function getLinkedLayerParentIndex(
+  layer: Layer,
+  layers: AnyLayer[]
+): number {
+  if (!layer.options.linkedLayers) {
+    return;
+  }
+
+  return layers.findIndex((list_layer) => _isLinkedParent(layer, list_layer));
+}
+
+function _isLinkedParent(layer: Layer, layerToCheck: AnyLayer): boolean {
+  if (!isLayerItem(layerToCheck)) {
+    return;
+  }
+  const links = layerToCheck.options.linkedLayers?.links;
+  if (links) {
+    return links.some((link) =>
+      link.linkedIds.includes(layer.options.linkedLayers.linkId)
+    );
+  }
+
+  return false;
+}
+
 export function getLinkedLayerOptionsParent(
   options: AnyLayerItemOptions,
   layersOptions: AnyLayerOptions[]

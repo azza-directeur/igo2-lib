@@ -173,6 +173,7 @@ export class EditionWorkspaceService {
           pageSizeOptions: layer.options.workspace?.pageSizeOptions
         },
         showInLayerList: false,
+        isIgoInternalLayer: true,
         opacity: 0,
         title: layer.title,
         minResolution:

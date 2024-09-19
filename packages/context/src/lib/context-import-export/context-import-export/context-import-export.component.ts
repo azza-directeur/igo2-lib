@@ -22,7 +22,7 @@ import { MessageService } from '@igo2/core/message';
 import { type AnyLayer, type IgoMap, VectorLayer } from '@igo2/geo';
 
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
 
 import { DetailedContext } from '../../context-manager/shared/context.interface';
 import { ContextService } from '../../context-manager/shared/context.service';
@@ -92,10 +92,12 @@ export class ContextImportExportComponent implements OnInit, OnDestroy {
     this.clientSideFileSizeMax =
       (configFileSizeMb ? configFileSizeMb : 30) * Math.pow(1024, 2);
     this.fileSizeMb = this.clientSideFileSizeMax / Math.pow(1024, 2);
-    this.layers$$ = this.map.layerController.layers$.subscribe((layers) => {
-      this.layerList = layers;
-      this.userControlledLayerList = layers;
-    });
+    this.layers$$ = this.map.layerController.layers$
+      .pipe(filter((layers) => !!layers))
+      .subscribe((layers) => {
+        this.layerList = layers;
+        this.userControlledLayerList = layers;
+      });
   }
 
   importFiles(files: File[]) {

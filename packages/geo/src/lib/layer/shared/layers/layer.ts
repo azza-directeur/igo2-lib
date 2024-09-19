@@ -125,7 +125,6 @@ export abstract class Layer extends LayerBase {
     super.remove();
 
     this.map.layerWatcher.unwatchLayer(this);
-    this.observeResolution();
   }
 
   private showMessage(message: Message) {

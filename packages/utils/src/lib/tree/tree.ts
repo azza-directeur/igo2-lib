@@ -31,9 +31,10 @@ export class Tree<T> {
     return this.flatten(this._data);
   }
 
-  add(...nodes: T[]): void {
+  add(...nodes: T[]): T[] {
     this.sortDeep(nodes);
     this._data.unshift(...nodes);
+    return nodes;
   }
 
   addBefore(beforeId: string | undefined, ...nodes: T[]): void {
@@ -41,8 +42,8 @@ export class Tree<T> {
     this._addBefore(beforeId, this._data, ...nodes);
   }
 
-  remove(...nodes: T[]): void {
-    nodes.forEach((node) => this._remove(node));
+  remove(...nodes: T[]): T[] {
+    return this._remove(...nodes);
   }
 
   clear(): void {
@@ -93,8 +94,8 @@ export class Tree<T> {
     return nodes;
   }
 
-  private _remove(...nodes: T[]): void {
-    nodes.forEach((node) => {
+  private _remove(...nodes: T[]): T[] {
+    return nodes.reduce((acc: T[], node) => {
       const ancestor = this.getNodeAncestor(node);
       if (!ancestor) {
         return;
@@ -105,7 +106,9 @@ export class Tree<T> {
         return;
       }
       ancestor.splice(index, 1);
-    });
+
+      return acc.concat(node);
+    }, []);
   }
 
   /**
