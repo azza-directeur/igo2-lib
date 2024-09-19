@@ -1,4 +1,4 @@
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -65,6 +65,7 @@ import { MapState } from '../map.state';
   imports: [
     MatTabsModule,
     NgIf,
+    NgTemplateOutlet,
     LayerViewerComponent,
     StyleModalLayerButtonComponent,
     MetadataButtonComponent,
