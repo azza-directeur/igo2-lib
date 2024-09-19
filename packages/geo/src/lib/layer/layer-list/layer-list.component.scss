@@ -21,11 +21,20 @@ igo-layer-item {
   .layer-indicator {
     color: rgba(0, 0, 0, 0.38) !important;
 
-    mat-icon {
+    igo-icon,
+    .mdc-icon-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    ::ng-deep mat-icon {
       $size: 18px;
       height: $size;
       width: $size;
       font-size: $size;
+
+      font-variation-settings: 'fill' 0;
 
       ::ng-deep svg {
         height: $size;

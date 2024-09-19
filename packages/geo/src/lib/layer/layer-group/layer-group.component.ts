@@ -8,6 +8,7 @@ import {
   OnInit,
   Output
 } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MatCheckboxChange,
   MatCheckboxModule
@@ -30,6 +31,7 @@ import type { LayerGroup } from '../shared/layers/layer-group';
   standalone: true,
   imports: [
     AsyncPipe,
+    MatButtonModule,
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,

@@ -9,7 +9,7 @@
 @use './layer-group/layer-group.theme.scss' as layer-group;
 @use './layer-list/layer-list.theme.scss' as layer-list;
 
-@mixin igo-layer-theming($theme) {
+@mixin themes($theme) {
   @include layer-legend.igo-layer-legend-theming($theme);
   @include layer-list-tool.theme($theme);
   @include layer-item.theme($theme);

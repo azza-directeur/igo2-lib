@@ -11,6 +11,7 @@ import {
   Output,
   TemplateRef
 } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,6 +49,7 @@ import { LayerToolMode, LayerViewerOptions } from './layer-viewer.interface';
   imports: [
     NgIf,
     NgTemplateOutlet,
+    MatButtonModule,
     MatCheckboxModule,
     MatDividerModule,
     MatIconModule,
