@@ -35,7 +35,9 @@ export class SpatialFilterService {
     RegTour: 'tourisme',
     bornes: 'bornes-sumi',
     hydro: 'hydro',
-    routes: 'routes'
+    routes: 'routes',
+    adresses: 'adresses',
+    unites: 'unites'
   };
 
   constructor(
@@ -133,6 +135,15 @@ export class SpatialFilterService {
                   name.substring(1, name.length - 1);
               }
               item.source = type;
+
+              if (name === this.urlFilterList.adresses) {
+                item.group = this.languageService.translate.instant(
+                  'igo.geo.spatialFilter.group.addresses'
+                );
+                item.name = this.languageService.translate.instant(
+                  'igo.geo.terrapi.address'
+                );
+              }
 
               items.push(item);
             }

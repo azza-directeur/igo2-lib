@@ -264,12 +264,8 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
   @Output() openWorkspace = new EventEmitter();
   @Output() entityChange = new EventEmitter<any>();
 
-  public itemType: SpatialFilterItemType[] = [
-    SpatialFilterItemType.Address,
-    SpatialFilterItemType.Thematics
-  ];
   public selectedItemType: SpatialFilterItemType =
-    SpatialFilterItemType.Address;
+    SpatialFilterItemType.Thematics;
   public selectedSourceAddress;
 
   treeControl: NestedTreeControl<SpatialFilterThematic> =
@@ -404,6 +400,13 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
               child.group = this.languageService.translate.instant(
                 'igo.geo.spatialFilter.group.transport'
               );
+            } else if (
+              child.name ===
+              this.languageService.translate.instant('igo.geo.terrapi.unites')
+            ) {
+              child.group = this.languageService.translate.instant(
+                'igo.geo.spatialFilter.group.addresses'
+              );
             } else {
               const thematic: SpatialFilterThematic = {
                 name: child.name,
@@ -424,9 +427,9 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
             }
           }
         });
-      });
 
-    this.dataSource.data = this.thematics;
+        this.dataSource.data = this.thematics;
+      });
 
     this.drawGuide$.next(null);
     this.value$.next(
@@ -545,11 +548,6 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
     if (this.value$$) {
       this.value$$.unsubscribe();
     }
-  }
-
-  onItemTypeChange(event) {
-    this.selectedItemType = event.value;
-    this.itemTypeChange.emit(this.selectedItemType);
   }
 
   /**

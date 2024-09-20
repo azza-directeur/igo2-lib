@@ -94,7 +94,7 @@ export class AppSpatialFilterComponent implements OnInit, OnDestroy {
   };
 
   @Input() type: SpatialFilterType;
-  @Input() itemType: SpatialFilterItemType = SpatialFilterItemType.Address;
+  @Input() itemType: SpatialFilterItemType = SpatialFilterItemType.Thematics;
   @Input() freehandDrawIsActive: boolean;
 
   public layers: Layer[] = [];

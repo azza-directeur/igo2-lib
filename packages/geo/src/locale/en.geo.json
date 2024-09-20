@@ -629,7 +629,8 @@
           "sante": "Health",
           "securite": "Security",
           "sepaq": "SEPAQ",
-          "transport": "Transportation"
+          "transport": "Transportation",
+          "addresses": "Addresses"
         }
       },
       "terrapi": {
@@ -681,7 +682,8 @@
         "penitencier-fed": "Federal penitentiaries",
         "penitencier-prov": "Provincial penitentiaries",
         "polices": "Police station",
-        "unites": "Unit number"
+        "unites": "Units (apartments, offices, etc.)",
+        "address": "Addresses without units"
       },
       "measure": {
         "dialog": {

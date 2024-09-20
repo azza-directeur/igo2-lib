@@ -90,15 +90,6 @@
 <mat-label class="title mat-typography"
   >{{ 'igo.geo.spatialFilter.search' | translate }} :
 </mat-label>
-<mat-radio-group [value]="selectedItemType">
-  <mat-radio-button
-    *ngFor="let item of itemType"
-    [value]="item"
-    (change)="onItemTypeChange($event)"
-  >
-    {{ 'igo.geo.spatialFilter.' + item | translate }}
-  </mat-radio-button>
-</mat-radio-group>
 
 <div
   class="thematics"
