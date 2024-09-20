@@ -364,7 +364,7 @@ function convertDMSToDD(
  * @returns longitude and latitude in dms
  */
 export function convertDDToDMS(
-  lonLatDD: [number, number],
+  lonLatDD: Coordinate,
   decimal = 3
 ): string[] {
   const lonLatDMS = [];

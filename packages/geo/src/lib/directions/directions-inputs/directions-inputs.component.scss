@@ -19,8 +19,20 @@
     row-gap: 12px;
   }
 
+  .stop:hover {
+    .swipe-vertical,
+    .delete-button {
+      display: block;
+    }
+  }
+
   .swipe-vertical {
+    display: none;
     cursor: move;
+  }
+
+  .delete-button {
+    display: none;
   }
 
   .stop-box {

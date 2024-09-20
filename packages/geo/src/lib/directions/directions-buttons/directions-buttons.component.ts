@@ -16,11 +16,7 @@ import { Subject } from 'rxjs';
 
 import { roundCoordTo, roundCoordToString } from '../../map/shared/map.utils';
 import { DirectionsService } from '../shared';
-import {
-  FeatureWithDirections,
-  IgoStep,
-  Stop
-} from '../shared/directions.interface';
+import { FeatureWithDirections, IgoStep } from '../shared/directions.interface';
 import {
   formatDistance,
   formatDuration,
@@ -47,11 +43,11 @@ import {
   ]
 })
 export class DirectionsButtonsComponent {
-  @Input() contextUri: string;
-  @Input() zoomOnActiveRoute$ = new Subject<void>();
-  @Input() stopsStore: StopsStore;
-  @Input() routesFeatureStore: RoutesFeatureStore;
-  @Input() stepsFeatureStore: StepsFeatureStore;
+  @Input({ required: true }) contextUri: string;
+  @Input({ required: true }) zoomOnActiveRoute$ = new Subject<void>();
+  @Input({ required: true }) stopsStore: StopsStore;
+  @Input({ required: true }) routesFeatureStore: RoutesFeatureStore;
+  @Input({ required: true }) stepsFeatureStore: StepsFeatureStore;
 
   public downloadDirectionsBtnDisabled = false;
 
@@ -70,7 +66,7 @@ export class DirectionsButtonsComponent {
   get activeRoute(): FeatureWithDirections {
     return this.routesFeatureStore
       .all()
-      .find((route: FeatureWithDirections) => route.properties.active);
+      .find((route) => route.properties.active);
   }
 
   /**
@@ -142,7 +138,6 @@ export class DirectionsButtonsComponent {
     const indent = '\t';
     const newLine = '\n';
 
-    // Summary
     let summary: string =
       this.languageService.translate.instant(
         'igo.geo.directions.directionsText.summary'
@@ -165,7 +160,6 @@ export class DirectionsButtonsComponent {
 
     summary += newLine + newLine;
 
-    // Stops
     let stops: string =
       this.languageService.translate.instant(
         'igo.geo.directions.directionsText.stopList'
@@ -174,7 +168,7 @@ export class DirectionsButtonsComponent {
       newLine;
 
     let stopNumber = 1;
-    this.stopsStore.view.all().forEach((stop: Stop) => {
+    this.stopsStore.view.all().forEach((stop) => {
       let coords = '';
       let stopText = '';
       if (stop.text !== roundCoordToString(stop.coordinates, 6).join(', ')) {
@@ -196,7 +190,6 @@ export class DirectionsButtonsComponent {
     });
     stops += newLine;
 
-    // URL
     const url: string =
       this.languageService.translate.instant(
         'igo.geo.directions.directionsText.link'
@@ -208,14 +201,13 @@ export class DirectionsButtonsComponent {
       newLine +
       newLine;
 
-    // Directions
     let directions: string =
       this.languageService.translate.instant('igo.geo.directions.directions') +
       ':' +
       newLine;
 
     this.activeRoute.properties.directions.steps.forEach(
-      (step: IgoStep, stepIndex: number, steps: IgoStep[]) => {
+      (step, stepIndex, steps) => {
         const distance: string = formatDistance(step.distance);
         const duration: string = formatDuration(step.duration);
         if ((distance && duration) || stepIndex === steps.length - 1) {
@@ -264,7 +256,7 @@ export class DirectionsButtonsComponent {
    *
    * @return {string | undefined} The generated link, or undefined if the route service is not available.
    */
-  private getLink(): string {
+  private getLink(): string | undefined {
     if (!this.routeService) {
       return;
     }
@@ -276,7 +268,7 @@ export class DirectionsButtonsComponent {
 
     const routeIndex: number = this.routesFeatureStore
       .all()
-      .map((direction: FeatureWithDirections) => direction.properties.id)
+      .map((direction) => direction.properties.id)
       .indexOf(this.activeRoute.properties.id);
     let routingOptions = '';
     if (routeIndex !== 0) {
@@ -288,7 +280,7 @@ export class DirectionsButtonsComponent {
       this.routeService.options.directionsCoordKey;
     const stopsCoordinates: Coordinate[] = this.stopsStore.view
       .all()
-      .map((stop: Stop) => roundCoordTo(stop.coordinates, 6));
+      .map((stop) => roundCoordTo(stop.coordinates, 6));
     let directionsUrl = '';
     if (stopsCoordinates.length >= 2) {
       directionsUrl = `${directionsKey}=${stopsCoordinates.join(';')}`;

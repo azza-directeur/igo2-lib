@@ -75,9 +75,7 @@ export class DirectionsService {
 
     const pageSize = doc.internal.pageSize;
 
-    /** top | right | bottom | left */
     const margins: [number, number, number, number] = [30, 10, 20, 10];
-    //this.addAttribution(map, doc, margins);
 
     const zoneWidth: number = pageSize.getWidth() - margins[3] - margins[1];
     const zoneHeight: number = pageSize.getHeight() - margins[0] - margins[2];
@@ -111,25 +109,6 @@ export class DirectionsService {
 
     return status$;
   }
-
-  /**private addAttribution(
-    map: IgoMap,
-    doc: jsPDF,
-    margins: [number, number, number, number]
-  ) {
-    const verticalSpacing = 5;
-    const attributionText: string = this.printService.getAttributionText(map);
-    if (attributionText) {
-      margins[2] += verticalSpacing;
-      const xPosition = margins[3];
-      const marginBottom = margins[2];
-      // calculate text position Y
-      const yPosition =
-        doc.internal.pageSize.height - marginBottom + verticalSpacing;
-      doc.setFontSize(10);
-      doc.text(attributionText, xPosition, yPosition);
-    }
-  }*/
 
   /**
    * Generates an HTML table element with directions steps.

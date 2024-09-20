@@ -72,7 +72,7 @@ export function computeRelativePosition(
     DirectionRelativePositionType.Intermediate;
   if (stopIndex === 0) {
     relativePosition = DirectionRelativePositionType.Start;
-  } else if (stopIndex === stopListLength - 1) {
+  } else if (stopIndex === stopListLength) {
     relativePosition = DirectionRelativePositionType.End;
   }
   return relativePosition;
@@ -83,23 +83,22 @@ export function computeRelativePosition(
  *
  * @param {StopsStore} stopsStore - The store containing the stops.
  */
-export function computeStopsPosition(stopsStore: StopsStore): void {
-  const stopsToComputePosition: Stop[] = [...stopsStore.all()];
-  stopsToComputePosition.sort((a, b) => a.position - b.position);
-  stopsToComputePosition.map((stop: Stop, stopIndex: number) => {
-    stop.position = stopIndex;
+export function computeStopsPosition(
+  deletedStopIndex: number,
+  stopsStore: StopsStore
+): void {
+  for (const stop of stopsStore.all()) {
+    stop.position =
+      stop.position > deletedStopIndex ? (stop.position -= 1) : stop.position;
     stop.relativePosition = computeRelativePosition(
       stop.position,
-      stopsToComputePosition.length
+      stopsStore.all().length - 1
     );
-  });
-  if (stopsToComputePosition) {
-    stopsStore.updateMany(stopsToComputePosition);
   }
 }
 
 /**
- * Adds a stop to the given stopsStore. The stop is always added before the last stop.
+ * Adds a stop to the given stopsStore. The stop is always added as the last stop.
  *
  * @param {StopsStore} stopsStore - The store containing the stops.
  * @return {Stop} The newly added stop.
@@ -107,34 +106,19 @@ export function computeStopsPosition(stopsStore: StopsStore): void {
 export function addStopToStore(stopsStore: StopsStore): Stop {
   const id: string = uuid();
   const stops: Stop[] = stopsStore.all();
-  let stopPositions: number[];
-  if (stopsStore.count === 0) {
-    stopPositions = [0];
-  } else {
-    stopPositions = stops.map((stop: Stop) => stop.position);
-  }
-  const maxPosition: number = Math.max(...stopPositions);
-  const insertPosition: number = maxPosition;
-  const lastPosition: number = maxPosition + 1;
+  const insertIndex = stops.length;
 
-  const stopToUpdate: Stop = stopsStore
-    .all()
-    .find((stop: Stop) => stop.position === maxPosition);
-  if (stopToUpdate) {
-    stopToUpdate.position = lastPosition;
-    stopToUpdate.relativePosition = computeRelativePosition(
-      lastPosition,
-      stopsStore.count + 1
+  for (const stop of stopsStore.all()) {
+    stop.relativePosition = computeRelativePosition(
+      stop.position,
+      stops.length
     );
   }
 
   stopsStore.insert({
     id,
-    position: insertPosition,
-    relativePosition: computeRelativePosition(
-      insertPosition,
-      stopsStore.count + 1
-    )
+    position: insertIndex,
+    relativePosition: computeRelativePosition(insertIndex, stops.length)
   });
 
   updateStoreSorting(stopsStore);
@@ -149,7 +133,7 @@ export function addStopToStore(stopsStore: StopsStore): Stop {
  */
 export function removeStopFromStore(stopsStore: StopsStore, stop: Stop): void {
   stopsStore.delete(stop);
-  computeStopsPosition(stopsStore);
+  computeStopsPosition(stop.position, stopsStore);
 }
 
 /**

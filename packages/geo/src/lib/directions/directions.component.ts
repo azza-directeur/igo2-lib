@@ -97,16 +97,16 @@ export class DirectionsComponent implements OnInit, OnDestroy {
   private searchs$$: Subscription[] = [];
   private authenticated$$: Subscription;
 
-  @Input() contextUri: string;
-  @Input() stopsStore: StopsStore;
-  @Input() stopsFeatureStore: StopsFeatureStore;
-  @Input() routesFeatureStore: RoutesFeatureStore;
-  @Input() stepsFeatureStore: StepsFeatureStore;
+  @Input({ required: true }) contextUri: string;
+  @Input({ required: true }) stopsStore: StopsStore;
+  @Input({ required: true }) stopsFeatureStore: StopsFeatureStore;
+  @Input({ required: true }) routesFeatureStore: RoutesFeatureStore;
+  @Input({ required: true }) stepsFeatureStore: StepsFeatureStore;
   @Input() debounce = 200;
   @Input() length = 2;
   @Input() coordRoundedDecimals = 6;
-  @Input() zoomOnActiveRoute$ = new Subject();
-  @Input() authenticated$: BehaviorSubject<boolean>;
+  @Input({ required: true }) zoomOnActiveRoute$ = new Subject<void>();
+  @Input({ required: true }) authenticated$: BehaviorSubject<boolean>;
 
   /**
    * Wheter one of the direction control is active
@@ -187,7 +187,9 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     this.routesFeatureStore.deactivateStrategyOfType(
       FeatureStoreLoadingStrategy
     );
-    this.stepsFeatureStore.deactivateStrategyOfType(FeatureStoreLoadingStrategy);
+    this.stepsFeatureStore.deactivateStrategyOfType(
+      FeatureStoreLoadingStrategy
+    );
   }
 
   private initEntityStores() {
@@ -227,11 +229,11 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     this.translateStop = new olInteraction.Translate({
       features: this.selectStopInteraction.getFeatures()
     });
-    this.translateStop.on('translating', (evt: TranslateEvent) => {
+    this.translateStop.on('translating', (evt) => {
       this.isTranslating = true;
       this.executeStopTranslation(evt.features);
     });
-    this.translateStop.on('translateend', (evt: TranslateEvent) => {
+    this.translateStop.on('translateend', (evt) => {
       this.isTranslating = false;
       this.executeStopTranslation(evt.features);
     });
@@ -248,7 +250,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         );
       }
     });
-    this.selectedRoute.on('select', (evt: SelectEvent) => {
+    this.selectedRoute.on('select', (evt) => {
       if (this.focusOnStop === false) {
         const selectCoordinates: Coordinate = olProj.transform(
           (evt as any).mapBrowserEvent.coordinate,
@@ -322,7 +324,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
   private monitorEntityStoreChange() {
     this.storeChange$$ = this.stopsStore.entities$
       .pipe(debounceTime(this.debounce))
-      .subscribe((stops: Stop[]) => {
+      .subscribe((stops) => {
         this.handleStopDiff(stops);
         updateStoreSorting(this.stopsStore);
         this.handleStopsFeature();
@@ -335,7 +337,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
   }
 
   private handleStopDiff(stops: Stop[]) {
-    const simplifiedStops = stops.map((stop: Stop) => {
+    const simplifiedStops = stops.map((stop) => {
       return ObjectUtils.removeUndefined({
         ...{ id: stop.id, text: stop.text, coordinates: stop.coordinates }
       });
@@ -379,7 +381,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
           this.searchs$$ = requests$.map((request) => {
             return request
               .pipe(
-                map((results: SearchResult[]) =>
+                map((results) =>
                   results.filter((r) =>
                     isCoord
                       ? r.data.geometry.type === 'Point' && r.data.geometry
@@ -387,7 +389,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                   )
                 )
               )
-              .subscribe((res: SearchResult[]) => {
+              .subscribe((res) => {
                 if (res.length > 0) {
                   const source = res[0].source;
                   const meta = res[0].meta;

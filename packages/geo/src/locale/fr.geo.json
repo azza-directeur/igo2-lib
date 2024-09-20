@@ -372,7 +372,7 @@
           "text": "Certains chemins forestiers peuvent être impraticables ou non carrossables."
         },
         "input": {
-          "addStop": "Ajouter un arrêt intermédiaire",
+          "addStop": "Ajouter une destination",
           "clearStop": "Réinitialiser l'arrêt",
           "currentPosition": "Utiliser l'emplacement actuel",
           "end": "Destination",

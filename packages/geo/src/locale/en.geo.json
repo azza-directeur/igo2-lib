@@ -372,7 +372,7 @@
           "text": "Some forest roads may be impassable or not suitable for vehicles."
         },
         "input": {
-          "addStop": "Add intermediate stop",
+          "addStop": "Add a destination",
           "clearStop": "Clear stop",
           "currentPosition": "Use current position",
           "end": "Destination",

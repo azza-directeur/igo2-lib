@@ -64,8 +64,8 @@ import { RoutesFeatureStore, StepsFeatureStore } from '../shared/store';
   ]
 })
 export class DirectionsResultsComponent implements OnInit, OnDestroy {
-  @Input() routesFeatureStore: RoutesFeatureStore;
-  @Input() stepsFeatureStore: StepsFeatureStore;
+  @Input({ required: true }) routesFeatureStore: RoutesFeatureStore;
+  @Input({ required: true }) stepsFeatureStore: StepsFeatureStore;
 
   public activeRoute: Directions;
   public routes: Directions[];
@@ -79,7 +79,7 @@ export class DirectionsResultsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.entities$$ = this.routesFeatureStore.entities$
       .pipe(debounceTime(200))
-      .subscribe((features: FeatureWithDirections[]) => {
+      .subscribe((features) => {
         const activeFeature: FeatureWithDirections = features.find(
           (entity) => entity.properties.active
         );
@@ -101,15 +101,12 @@ export class DirectionsResultsComponent implements OnInit, OnDestroy {
    */
   chooseRouteOption(): void {
     this.routesFeatureStore.entities$.value.map(
-      (feature: FeatureWithDirections) =>
-        (feature.properties.active = !feature.properties.active)
+      (feature) => (feature.properties.active = !feature.properties.active)
     );
     this.routesFeatureStore.layer.ol
       .getSource()
       .getFeatures()
-      .map((feature: olFeature) =>
-        feature.set('active', !feature.get('active'))
-      );
+      .map((feature) => feature.set('active', !feature.get('active')));
   }
 
   /**
@@ -130,6 +127,22 @@ export class DirectionsResultsComponent implements OnInit, OnDestroy {
    */
   formatDuration(duration: number): string {
     return formatDuration(duration);
+  }
+
+  /**
+   * Returns a formatted string containing the distance and duration of the active route.
+   *
+   * @return {string} The formatted string, or an empty string if either distance or duration is undefined.
+   */
+  getTitleDurationAndDistance(): string {
+    return this.formatDistance(this.activeRoute.distance) &&
+      this.formatDuration(this.activeRoute.duration)
+      ? ' (' +
+          this.formatDistance(this.activeRoute.distance) +
+          ' - ' +
+          this.formatDuration(this.activeRoute.duration) +
+          ')'
+      : '';
   }
 
   /**
@@ -160,7 +173,7 @@ export class DirectionsResultsComponent implements OnInit, OnDestroy {
    * @param {IgoStep} step - The step to be shown.
    * @param {boolean} [zoomToExtent=false] - Whether to zoom to the extent of the route segment geometry.
    */
-  showStep(step: IgoStep, zoomToExtent: boolean = false): void {
+  showStep(step: IgoStep, zoomToExtent = false): void {
     this.showRouteSegmentGeometry(step, zoomToExtent);
   }
 
@@ -180,9 +193,10 @@ export class DirectionsResultsComponent implements OnInit, OnDestroy {
     const lastPointGeometry: olGeom.Point = new olGeom.Point(
       lastPointCoordinates
     );
-    const lastPointFeature: olFeature<olGeom.Point> = new olFeature({
-      geometry: lastPointGeometry
-    });
+    const lastPointFeature: olFeature<olGeom.Point> =
+      new olFeature<olGeom.Point>({
+        geometry: lastPointGeometry
+      });
 
     const geojsonGeom: FeatureGeometry = new OlGeoJSON().writeGeometryObject(
       lastPointGeometry,

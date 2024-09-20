@@ -35,7 +35,6 @@ import * as olProj from 'ol/proj';
 
 import pointOnFeature from '@turf/point-on-feature';
 import { Position } from 'geojson';
-import { MapBrowserEvent } from 'ol';
 
 import {
   Feature,
@@ -77,9 +76,9 @@ import { DirectionRelativePositionType } from './../shared/directions.enum';
   ]
 })
 export class DirectionsInputsComponent implements OnDestroy {
-  @Input() stopsStore: StopsStore;
-  @Input() stopsFeatureStore: StopsFeatureStore;
-  @Input() projection: string;
+  @Input({ required: true }) stopsStore: StopsStore;
+  @Input({ required: true }) stopsFeatureStore: StopsFeatureStore;
+  @Input({ required: true }) projection: string;
   @Input() coordRoundedDecimals = 6;
   @Input() debounce = 200;
   @Input() length = 2;
@@ -283,10 +282,10 @@ export class DirectionsInputsComponent implements OnDestroy {
     if (fromIndex !== toIndex) {
       const stops: Stop[] = [...this.stopsStore.view.all()];
       moveItemInArray(stops, fromIndex, toIndex);
-      stops.map((stop: Stop, stopIndex: number) => {
+      stops.map((stop, stopIndex) => {
         stop.relativePosition = computeRelativePosition(
           stopIndex,
-          stops.length
+          stops.length - 1
         );
         stop.position = stopIndex;
       });
@@ -301,11 +300,9 @@ export class DirectionsInputsComponent implements OnDestroy {
    * @param {Stop} stop - The stop that the input field is associated with.
    */
   onInputFocus(stop: Stop): void {
-    if (!stop.text || stop.text?.length === 0) {
-      this.unlistenMapSingleClick();
-      this.stopInputHasFocus.emit(true);
-      this.listenMapSingleClick(stop);
-    }
+    this.unlistenMapSingleClick();
+    this.stopInputHasFocus.emit(true);
+    this.listenMapSingleClick(stop);
   }
 
   /**
@@ -317,7 +314,7 @@ export class DirectionsInputsComponent implements OnDestroy {
   private listenMapSingleClick(stop: Stop): void {
     const key: EventsKey = this.stopsFeatureStore.layer.map.ol.once(
       'singleclick',
-      (event: MapBrowserEvent<any>) => {
+      (event) => {
         this.useCoordinatesAsStop(event.coordinate, stop);
       }
     );

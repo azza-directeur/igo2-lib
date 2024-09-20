@@ -1,4 +1,4 @@
-<div class="igo-input-container" *ngIf="routes && activeRoute">
+<div class="igo-input-container" *ngIf="routes">
   <mat-form-field *ngIf="routes?.length > 1" [matTooltip]="activeRoute.title">
     <mat-label>{{
       'igo.geo.directions.results.routeOptions' | translate
@@ -21,16 +21,7 @@
 
   <h3 mat-header class="igo-route-title">
     {{ activeRoute.title }}
-    {{
-      formatDistance(activeRoute.distance) &&
-      formatDuration(activeRoute.duration)
-        ? ' (' +
-          formatDistance(activeRoute.distance) +
-          ' - ' +
-          formatDuration(activeRoute.duration) +
-          ')'
-        : ''
-    }}
+    {{ getTitleDurationAndDistance() }}
   </h3>
   <mat-list (mouseleave)="onLeaveList()">
     <ng-container *ngFor="let step of activeRoute.steps; let stepIndex = index">

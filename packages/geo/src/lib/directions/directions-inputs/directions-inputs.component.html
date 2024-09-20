@@ -3,15 +3,6 @@
     *ngFor="let stop of stopsStore.view.all$() | async; let stopIndex = index"
     class="stop"
   >
-    <button
-      *ngIf="stopIndex === (stopsStore.count$ | async) - 1 && !stopIsDragged"
-      mat-icon-button
-      [matTooltip]="'igo.geo.directions.input.addStop' | translate"
-      color="primary"
-      (click)="addStop()"
-    >
-      <mat-icon>add_location_alt</mat-icon>
-    </button>
     <div
       (touchenter)="onStopEnter(stop)"
       (touchleave)="onStopLeave()"
@@ -91,6 +82,7 @@
         </mat-form-field>
       </div>
       <button
+        class="delete-button"
         *ngIf="(stopsStore.count$ | async) > 2"
         mat-icon-button
         [matTooltip]="'igo.geo.directions.input.removeStop' | translate"
@@ -101,4 +93,16 @@
       </button>
     </div>
   </div>
+  <button
+    mat-icon-button
+    [disabled]="
+      (stopsStore.count$ | async) !== (stopsFeatureStore.count$ | async) ||
+      stopIsDragged
+    "
+    [matTooltip]="'igo.geo.directions.input.addStop' | translate"
+    color="primary"
+    (click)="addStop()"
+  >
+    <mat-icon>add_location_alt</mat-icon>
+  </button>
 </div>
