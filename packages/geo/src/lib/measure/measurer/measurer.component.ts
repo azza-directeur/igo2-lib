@@ -648,7 +648,7 @@ export class MeasurerComponent implements OnInit, OnDestroy {
   private initStore() {
     const store = this.store;
 
-    const layer = new VectorLayer({
+    let layer = new VectorLayer({
       title: this.languageService.translate.instant(
         'igo.geo.measure.layerTitle'
       ),
@@ -663,7 +663,7 @@ export class MeasurerComponent implements OnInit, OnDestroy {
       browsable: false,
       workspace: { enabled: false }
     });
-    tryBindStoreLayer(store, layer);
+    layer = tryBindStoreLayer(store, layer);
 
     layer.visible$.subscribe((visible) => {
       const elements: HTMLCollectionOf<Element> =

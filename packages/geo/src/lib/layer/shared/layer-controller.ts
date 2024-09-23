@@ -413,7 +413,6 @@ export class LayerController extends LayerSelectionModel {
 
   private clearBaselayers(): void {
     this.baseLayers.forEach((layer) => this._remove(layer));
-    this._baseLayers$.next([]);
     this._baseLayers = [];
   }
 
@@ -424,7 +423,6 @@ export class LayerController extends LayerSelectionModel {
 
   private clearSystems(): void {
     this.systemLayers.forEach((layer) => this._remove(layer));
-    this._systemLayers$.next([]);
     this._systemLayers = [];
   }
 

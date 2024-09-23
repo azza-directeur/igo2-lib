@@ -9,13 +9,15 @@ import { FeatureStore } from './store';
  * @param store The store to bind the layer
  * @param layer An optional VectorLayer
  */
-export function tryBindStoreLayer(store: FeatureStore, layer?: VectorLayer) {
-  const hasNewLayer = layer && (!store.layer || store.layer.id !== layer.id);
-  if (store.layer !== undefined && !hasNewLayer) {
-    if (store.layer.map === undefined) {
+export function tryBindStoreLayer(
+  store: FeatureStore,
+  layer?: VectorLayer
+): VectorLayer {
+  if (store.layer !== undefined) {
+    if (!store.map.layerController.getById(store.layer.id)) {
       store.map.addLayer(store.layer);
     }
-    return;
+    return store.layer;
   }
 
   layer = layer
@@ -24,7 +26,9 @@ export function tryBindStoreLayer(store: FeatureStore, layer?: VectorLayer) {
         source: new FeatureDataSource()
       });
   store.bindLayer(layer);
-  if (store.layer.map === undefined) {
+  if (!store.map.layerController.getById(store.layer.id)) {
     store.map.addLayer(store.layer);
   }
+
+  return layer;
 }
