@@ -1,6 +1,7 @@
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Input,
   OnDestroy,
@@ -14,6 +15,7 @@ import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { ToolComponent } from '@igo2/common/tool';
 import { ConfigService } from '@igo2/core/config';
 import { IgoLanguageModule } from '@igo2/core/language';
+import { Media, MediaService } from '@igo2/core/media';
 import {
   AnyLayer,
   ExportButtonComponent,
@@ -83,6 +85,7 @@ import { MapState } from '../map.state';
   ]
 })
 export class MapToolsComponent implements OnInit, OnDestroy {
+  isDesktop: boolean;
   layers$ = new BehaviorSubject<AnyLayer[]>([]);
   showAllLegendsValue$ = new BehaviorSubject<boolean>(false);
 
@@ -217,12 +220,15 @@ export class MapToolsComponent implements OnInit, OnDestroy {
     public mapState: MapState,
     private searchSourceService: SearchSourceService,
     private importExportState: ImportExportState,
-    private configService: ConfigService
+    private configService: ConfigService,
+    public mediaService: MediaService,
+    private cdr: ChangeDetectorRef
   ) {
     this._layerViewerOptions = this.configService.getConfig('layerViewer');
   }
 
   ngOnInit(): void {
+    this.handleMedia();
     this.selectedTab();
     this.resolution$$ = combineLatest([
       this.map.layerController.all$,
@@ -377,5 +383,12 @@ export class MapToolsComponent implements OnInit, OnDestroy {
       }
     }
     return false;
+  }
+
+  private handleMedia(): void {
+    this.mediaService.media$.subscribe((result) => {
+      this.isDesktop = result === Media.Desktop;
+      this.cdr.detectChanges();
+    });
   }
 }

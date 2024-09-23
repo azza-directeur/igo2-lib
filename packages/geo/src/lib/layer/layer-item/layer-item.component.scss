@@ -1,22 +1,10 @@
 :host {
   overflow: hidden;
+}
 
-  &:hover {
-    .list-actions {
-      ::ng-deep button {
-        visibility: visible;
-      }
-    }
-  }
-
-  .list-actions {
-    margin-left: 4px;
-    margin-right: 4px;
-
-    ::ng-deep button {
-      visibility: hidden;
-    }
-  }
+.list-actions {
+  margin-left: 4px;
+  margin-right: 4px;
 }
 
 .layer-content {

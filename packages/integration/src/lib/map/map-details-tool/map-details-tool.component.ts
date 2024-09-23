@@ -6,6 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { ToolComponent } from '@igo2/common/tool';
 import { ConfigService } from '@igo2/core/config';
 import { IgoLanguageModule } from '@igo2/core/language';
+import { Media, MediaService } from '@igo2/core/media';
 import {
   AnyLayer,
   ExportButtonComponent,
@@ -60,6 +61,7 @@ import { MapState } from './../map.state';
   ]
 })
 export class MapDetailsToolComponent implements OnInit {
+  isDesktop: boolean;
   public delayedShowEmptyMapContent = false;
 
   @Input() toggleLegendOnVisibilityChange = false;
@@ -143,18 +145,21 @@ export class MapDetailsToolComponent implements OnInit {
     private mapState: MapState,
     private toolState: ToolState,
     private searchSourceService: SearchSourceService,
-    private cdRef: ChangeDetectorRef,
     private importExportState: ImportExportState,
-    private configService: ConfigService
+    private configService: ConfigService,
+    public mediaService: MediaService,
+    private cdr: ChangeDetectorRef
   ) {
     this._layerViewerOptions = this.configService.getConfig('layerViewer');
   }
 
   ngOnInit(): void {
+    this.handleMedia();
+
     // prevent message to be shown too quickly. Waiting for layers
     setTimeout(() => {
       this.delayedShowEmptyMapContent = true;
-      this.cdRef.detectChanges();
+      this.cdr.detectChanges();
     }, 250);
   }
 
@@ -181,5 +186,12 @@ export class MapDetailsToolComponent implements OnInit {
     this.importExportState.setsExportOptions({ layers: [id] } as ExportOptions);
     this.importExportState.setMode(ImportExportMode.export);
     this.toolState.toolbox.activateTool('importExport');
+  }
+
+  private handleMedia(): void {
+    this.mediaService.media$.subscribe((result) => {
+      this.isDesktop = result === Media.Desktop;
+      this.cdr.detectChanges();
+    });
   }
 }

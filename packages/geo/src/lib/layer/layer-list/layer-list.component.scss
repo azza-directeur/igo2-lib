@@ -8,6 +8,24 @@
 
 igo-layer-group,
 igo-layer-item {
+  ::ng-deep .list-actions {
+    button {
+      visibility: hidden;
+
+      &.disabled {
+        visibility: visible;
+      }
+    }
+  }
+
+  &:hover {
+    ::ng-deep .list-actions {
+      button {
+        visibility: visible;
+      }
+    }
+  }
+
   &.disabled {
     ::ng-deep {
       .igo-layer-title,
@@ -41,6 +59,17 @@ igo-layer-item {
           height: $size;
           width: $size;
         }
+      }
+    }
+  }
+}
+
+.--not-desktop {
+  igo-layer-group,
+  igo-layer-item {
+    ::ng-deep .list-actions {
+      button {
+        visibility: visible !important;
       }
     }
   }

@@ -3,6 +3,7 @@
   *ngIf="(layers$ | async).length; else empty"
   [map]="map"
   [options]="layerViewerOptions"
+  [isDesktop]="isDesktop"
 >
   <ng-template #customBottomActions let-layer="layer">
     <igo-workspace-button [layer]="layer"></igo-workspace-button>

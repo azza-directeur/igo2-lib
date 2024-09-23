@@ -67,6 +67,7 @@ export class LayerViewerComponent implements OnInit {
 
   @Input({ required: true }) map: MapBase;
   @Input() options: LayerViewerOptions;
+  @Input() isDesktop: boolean;
 
   @Output() appliedFilterAndSort = new EventEmitter<LayerListControlsOptions>();
 

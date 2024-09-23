@@ -28,27 +28,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  &:hover {
-    .group-actions {
-      ::ng-deep button {
-        visibility: visible;
-      }
-    }
-  }
 }
 
-.group-actions {
+.list-actions {
   margin-left: 4px;
   margin-right: 4px;
-
-  ::ng-deep button {
-    visibility: hidden;
-
-    &.disabled {
-      visibility: visible;
-    }
-  }
 }
 
 .child-list {

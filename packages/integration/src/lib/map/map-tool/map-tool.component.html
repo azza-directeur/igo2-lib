@@ -1,6 +1,10 @@
 <mat-tab-group>
   <mat-tab [label]="'igo.integration.tools.map' | translate">
-    <igo-layer-viewer [map]="map" [options]="layerViewerOptions">
+    <igo-layer-viewer
+      [map]="map"
+      [options]="layerViewerOptions"
+      [isDesktop]="isDesktop"
+    >
       <ng-template #customBottomActions let-layer="layer">
         <igo-workspace-button [layer]="layer"></igo-workspace-button>
         <igo-export-button

@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit
+} from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { ToolComponent } from '@igo2/common/tool';
@@ -8,6 +14,7 @@ import {
 } from '@igo2/context';
 import { ConfigService } from '@igo2/core/config';
 import { IgoLanguageModule } from '@igo2/core/language';
+import { Media, MediaService } from '@igo2/core/media';
 import {
   ExportButtonComponent,
   ExportOptions,
@@ -59,7 +66,9 @@ import { MapState } from './../map.state';
     IgoLanguageModule
   ]
 })
-export class MapToolComponent {
+export class MapToolComponent implements OnInit {
+  isDesktop: boolean;
+
   @Input() toggleLegendOnVisibilityChange = false;
 
   @Input() expandLegendOfVisibleLayers = false;
@@ -117,9 +126,15 @@ export class MapToolComponent {
     private mapState: MapState,
     private toolState: ToolState,
     private importExportState: ImportExportState,
-    private configService: ConfigService
+    private configService: ConfigService,
+    public mediaService: MediaService,
+    private cdr: ChangeDetectorRef
   ) {
     this._layerViewerOptions = this.configService.getConfig('layerViewer');
+  }
+
+  ngOnInit(): void {
+    this.handleMedia();
   }
 
   activateExport(layer: Layer) {
@@ -133,5 +148,12 @@ export class MapToolComponent {
     this.importExportState.setsExportOptions({ layers: [id] } as ExportOptions);
     this.importExportState.setMode(ImportExportMode.export);
     this.toolState.toolbox.activateTool('importExport');
+  }
+
+  private handleMedia(): void {
+    this.mediaService.media$.subscribe((result) => {
+      this.isDesktop = result === Media.Desktop;
+      this.cdr.detectChanges();
+    });
   }
 }
