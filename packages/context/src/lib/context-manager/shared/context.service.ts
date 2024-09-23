@@ -476,7 +476,10 @@ export class ContextService {
       layers.unshift(baseLayer);
     }
 
-    context.layers = layers.map((layer) => layer.saveableOptions);
+    // Remove null for the first level, the LayerGroup is already doing that for it's children
+    context.layers = layers
+      .map((layer) => layer.saveableOptions)
+      .filter(Boolean);
 
     context.tools = this.tools.map((tool) => {
       return {
