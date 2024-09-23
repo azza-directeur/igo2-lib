@@ -111,6 +111,9 @@ export class LayerListComponent {
     return {
       id: layer.id || layer.options.name,
       isGroup: !!isLayerGroup(layer),
+      descendantLevels: isLayerGroup(layer)
+        ? layer.descendantsLevel
+        : undefined,
       level: level,
       data: layer,
       disabled: false

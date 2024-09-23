@@ -3,6 +3,8 @@ export interface TreeFlatNode<T = any> {
   isGroup: boolean;
   disabled: boolean;
   level: number;
+  // Give the number of level inside a group;
+  descendantLevels?: number;
   data: T;
 }
 

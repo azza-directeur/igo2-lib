@@ -36,6 +36,10 @@ export class LayerGroup extends LayerGroupBase {
     return this._getDescendants();
   }
 
+  get descendantsLevel(): number {
+    return this._getDescendantsLevel();
+  }
+
   constructor(
     public children: AnyLayer[] | null,
     public options: LayerGroupOptions
@@ -161,5 +165,18 @@ export class LayerGroup extends LayerGroupBase {
         return list.concat(child);
       }
     }, []);
+  }
+
+  /** recursive */
+  private _getDescendantsLevel(children = this.children): number {
+    return children.reduce((level, child) => {
+      if (child instanceof LayerGroup) {
+        level = level + 1;
+        const descendantLevel = this._getDescendantsLevel(child.children);
+        return level + descendantLevel;
+      }
+
+      return level;
+    }, 0);
   }
 }

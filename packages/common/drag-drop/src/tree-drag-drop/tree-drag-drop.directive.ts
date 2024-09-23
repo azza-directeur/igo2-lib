@@ -59,6 +59,7 @@ export class TreeDragDropDirective implements AfterContentInit, OnDestroy {
   highlightedNode = new SelectionModel<TreeFlatNode>();
 
   @Input({ required: true }) treeControl: FlatTreeControl<TreeFlatNode>;
+
   /** The default is 5 */
   @Input() maxLevel = 5;
 
@@ -332,6 +333,11 @@ export class TreeDragDropDirective implements AfterContentInit, OnDestroy {
       return this.canDropGroup(hoveredNode, position);
     }
 
+    const hasMaxLevelRestrictions = this.validateMaxHierarchyLevel(position);
+    if (hasMaxLevelRestrictions) {
+      return hasMaxLevelRestrictions;
+    }
+
     return { canDrop: true };
   }
 
@@ -347,14 +353,9 @@ export class TreeDragDropDirective implements AfterContentInit, OnDestroy {
       };
     }
 
-    const level =
-      position.type === 'inside' ? position.level + 1 : position.level;
-    if (this.maxLevel && level >= this.maxLevel) {
-      return {
-        canDrop: false,
-        message: 'igo.common.dragDrop.cannot.maxLevel',
-        params: { value: this.maxLevel }
-      };
+    const hasMaxLevelRestrictions = this.validateMaxHierarchyLevel(position);
+    if (hasMaxLevelRestrictions) {
+      return hasMaxLevelRestrictions;
     }
 
     const isHoverDescendant = this.isHoverDescendant(hoveredNode.id);
@@ -363,6 +364,28 @@ export class TreeDragDropDirective implements AfterContentInit, OnDestroy {
       message:
         isHoverDescendant && 'igo.common.dragDrop.cannot.dropInsideItself'
     };
+  }
+
+  private validateMaxHierarchyLevel(position: DropPosition): DropPermission {
+    if (!this.maxLevel) {
+      return;
+    }
+
+    let level =
+      position.type === 'inside' ? position.level + 1 : position.level;
+
+    if (this.draggedNode.isGroup) {
+      // We add an extra level +1 to avoid empty group in group
+      level = level + (this.draggedNode.descendantLevels ?? 0) + 1;
+    }
+
+    if (level > this.maxLevel) {
+      return {
+        canDrop: false,
+        message: 'igo.common.dragDrop.cannot.maxLevel',
+        params: { value: this.maxLevel }
+      };
+    }
   }
 
   private isHoverDescendant(id: string): boolean {
