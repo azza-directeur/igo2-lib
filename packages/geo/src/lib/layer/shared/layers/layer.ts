@@ -81,12 +81,7 @@ export abstract class Layer extends LayerBase {
   ) {
     super(options);
 
-    if (
-      options.legendOptions &&
-      (options.legendOptions.url || options.legendOptions.html)
-    ) {
-      this.legend = this.dataSource.setLegend(options.legendOptions);
-    }
+    this.dataSource = options.source;
 
     this.legendCollapsed = options.legendOptions
       ? options.legendOptions.collapsed
@@ -94,7 +89,12 @@ export abstract class Layer extends LayerBase {
         : true
       : true;
 
-    this.dataSource = options.source;
+    if (
+      options.legendOptions &&
+      (options.legendOptions.url || options.legendOptions.html)
+    ) {
+      this.legend = this.dataSource.setLegend(options.legendOptions);
+    }
 
     this.ol = this.createOlLayer();
     this.ol.set('_layer', this, true);
