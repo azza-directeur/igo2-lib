@@ -23,7 +23,10 @@ import { FormDialogService } from '@igo2/common/form';
 import { IgoLanguageModule } from '@igo2/core/language';
 
 import { LayerSearchComponent } from '../layer-search/layer-search.component';
-import { LayerToolMode } from '../layer-viewer/layer-viewer.interface';
+import {
+  LayerToolMode,
+  LayerViewerOptions
+} from '../layer-viewer/layer-viewer.interface';
 import { LayerGroup } from '../shared/layers/layer-group';
 import { LayerListToolService } from './layer-list-tool.service';
 
@@ -51,6 +54,7 @@ import { LayerListToolService } from './layer-list-tool.service';
 })
 export class LayerListToolComponent {
   @Input({ required: true }) mode: LayerToolMode;
+  @Input() viewerOptions: LayerViewerOptions;
   @Input() floatLabel: FloatLabelType = 'auto';
   @Input() onlyVisible: boolean;
   @Input() term: string;

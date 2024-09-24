@@ -1,7 +1,13 @@
 import { LayerListControlsOptions } from '../layer-list-tool/layer-list-tool.interface';
 
-export interface LayerViewerOptions {
-  maxHierarchyLevel?: number;
+export interface LayerConfig {
+  group?: {
+    enable: boolean;
+    maxHierarchyLevel?: number;
+  };
+}
+
+export interface LayerViewerOptions extends LayerConfig {
   mode?: LayerToolMode;
   queryBadge?: boolean;
   legend?: Partial<ViewerLegendOptions>;

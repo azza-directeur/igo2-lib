@@ -1,5 +1,6 @@
 <igo-layer-list-tool
   floatLabel="auto"
+  [viewerOptions]="layerViewerOptions"
   [term]="options?.filterAndSortOptions?.keyword"
   [mode]="mode"
   (addedLayer)="createGroup($event)"

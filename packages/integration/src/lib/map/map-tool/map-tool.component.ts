@@ -130,7 +130,7 @@ export class MapToolComponent implements OnInit {
     public mediaService: MediaService,
     private cdr: ChangeDetectorRef
   ) {
-    this._layerViewerOptions = this.configService.getConfig('layerViewer');
+    this._layerViewerOptions = this.configService.getConfig('layer');
   }
 
   ngOnInit(): void {
