@@ -60,6 +60,11 @@ export class ImageLayer extends Layer {
     super.setMap(map, parent);
   }
 
+  remove(): void {
+    this.watcher.unsubscribe();
+    super.remove();
+  }
+
   private customLoader(
     tile,
     src: string,

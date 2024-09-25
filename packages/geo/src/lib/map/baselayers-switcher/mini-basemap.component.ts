@@ -106,7 +106,7 @@ export class MiniBaseMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private handleBaseLayerChanged(baselayer: Layer) {
-    this.basemap.layerController.clear();
+    this.basemap.layerController.reset();
 
     const options: any = Object.assign(
       Object.create(baselayer.options),

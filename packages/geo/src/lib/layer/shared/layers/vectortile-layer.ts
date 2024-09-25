@@ -134,4 +134,9 @@ export class VectorTileLayer extends Layer {
     }
     super.setMap(map, parent);
   }
+
+  remove(): void {
+    this.watcher.unsubscribe();
+    super.remove();
+  }
 }

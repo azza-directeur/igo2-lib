@@ -77,7 +77,7 @@ export class LayerContextDirective implements OnInit, OnDestroy {
     }
 
     if (this.removeLayersOnContextChange === true) {
-      this.map.layerController.clear();
+      this.map.layerController.reset();
     } else {
       this.map.removeLayer(...this.contextLayers);
     }

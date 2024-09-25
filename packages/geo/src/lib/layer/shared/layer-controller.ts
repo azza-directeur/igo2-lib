@@ -26,11 +26,23 @@ import { LinkedProperties } from './layers/layer.interface';
 // Below 10 is reserved for BaseLayer
 const ZINDEX_MIN = 10;
 
+/**
+ * We got four kind of layers
+ * TreeLayer: all layers to show in the layer manager
+ * Baselayer: Layer dedicated for the basemap
+ * SystemLayer: Every layer dedicated to good function of the map (Selection, hovering)
+ * OtherLayer: all remaining layer that is linked to another layer or simply not a systemLayer that need to be cleaned on map reset
+ */
 export class LayerController extends LayerSelectionModel {
   private tree: Tree<AnyLayer>;
+
   private _baseLayers: Layer[] = [];
-  /** Measure, Drawing, Selection, Hovering, LinkedLayer not in tree, etc... */
+
+  /** Selection, Hovering, every internalLayer not in the tree is here */
   private _systemLayers: AnyLayer[] = [];
+
+  /** LinkedLayer and other layer that are not in the previous category and not visible in tree */
+  private _otherLayers: AnyLayer[] = [];
 
   private _layers$ = new BehaviorSubject<AnyLayer[] | undefined>(undefined);
   layers$ = this._layers$.asObservable();
@@ -38,11 +50,6 @@ export class LayerController extends LayerSelectionModel {
   layersFlattened$ = this._layers$
     .asObservable()
     .pipe(map(() => this.layersFlattened));
-
-  private _systemLayers$ = new BehaviorSubject<AnyLayer[] | undefined>(
-    undefined
-  );
-  systemLayers$ = this._systemLayers$.asObservable();
 
   private _baseLayers$ = new BehaviorSubject<Layer[] | undefined>(undefined);
   baseLayers$ = this._baseLayers$.asObservable();
@@ -58,11 +65,9 @@ export class LayerController extends LayerSelectionModel {
   ) {
     super();
 
-    this.all$ = combineLatest([
-      this.layersFlattened$,
-      this.systemLayers$,
-      this.baseLayers$
-    ]).pipe(map(() => this.all));
+    this.all$ = combineLatest([this.layersFlattened$, this.baseLayers$]).pipe(
+      map((_) => this.all)
+    );
 
     this.tree = new Tree(layers, {
       getChildren: (node) => isLayerGroup(node) && node.children,
@@ -73,11 +78,11 @@ export class LayerController extends LayerSelectionModel {
   }
 
   get all(): AnyLayer[] {
-    const ids = this.layersFlattened.map((layer) => layer.id);
     return [
       ...this.baseLayers,
       ...this.layersFlattened,
-      ...this.systemLayers.filter((layer) => !ids.includes(layer.id))
+      ...this._systemLayers,
+      ...this._otherLayers
     ];
   }
 
@@ -87,10 +92,6 @@ export class LayerController extends LayerSelectionModel {
 
   get baseLayer(): Layer {
     return this.baseLayers.find((layer) => layer.visible);
-  }
-
-  get systemLayers(): AnyLayer[] {
-    return this._systemLayers;
   }
 
   get treeLayers(): AnyLayer[] {
@@ -212,10 +213,11 @@ export class LayerController extends LayerSelectionModel {
     this._internalMove(layers);
   }
 
-  clear(): void {
+  /** Reset all except SystemLayer */
+  reset(): void {
     this.clearBaselayers();
-    this.clearSystems();
     this.clearTree();
+    this.clearOther();
     this.clearSelection();
 
     this.notify();
@@ -351,20 +353,17 @@ export class LayerController extends LayerSelectionModel {
         this.selectBaseLayer(layer);
       }
       this._baseLayers.push(layer);
-      return;
-    } else if (this.isSystemLayer(layer)) {
+    } else if (isLayerLinked(layer) && !layer.showInLayerList) {
+      this._otherLayers.push(layer);
+    } else if (this.isSystemLayer(layer) && !layer.showInLayerList) {
       this._systemLayers.push(layer);
-      if (layer.showInLayerList) {
-        return layer;
-      }
-      return;
-    }
-
-    if (layer.showInLayerList) {
+    } else if (layer.showInLayerList) {
       return layer;
     } else {
-      this._systemLayers.push(layer);
+      this._otherLayers.push(layer);
     }
+
+    return;
   }
 
   private _remove(layer: AnyLayer): AnyLayer | AnyLayer[] {
@@ -383,13 +382,13 @@ export class LayerController extends LayerSelectionModel {
   }
 
   private removeSystemLayer(layer: AnyLayer) {
-    const index = this.systemLayers.findIndex(
+    const index = this._systemLayers.findIndex(
       (sysLayer) => sysLayer.id === layer.id
     );
     if (index === -1) {
       return;
     }
-    this.systemLayers.splice(index, 1);
+    this._systemLayers.splice(index, 1);
   }
 
   private isSystemLayer(layer: AnyLayer): boolean {
@@ -422,8 +421,13 @@ export class LayerController extends LayerSelectionModel {
   }
 
   private clearSystems(): void {
-    this.systemLayers.forEach((layer) => this._remove(layer));
+    this._systemLayers.forEach((layer) => this._remove(layer));
     this._systemLayers = [];
+  }
+
+  private clearOther(): void {
+    this._otherLayers.forEach((layer) => this._remove(layer));
+    this._otherLayers = [];
   }
 
   private getZindexOffset(layer: AnyLayer, previousOffset = 0): number {
@@ -452,7 +456,6 @@ export class LayerController extends LayerSelectionModel {
 
   private notify(): void {
     this._layers$.next(this.treeLayers);
-    this._systemLayers$.next(this.systemLayers);
     this._baseLayers$.next(this.baseLayers);
   }
 

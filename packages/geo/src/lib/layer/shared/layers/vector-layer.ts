@@ -252,6 +252,7 @@ export class VectorLayer extends Layer {
   }
 
   remove(): void {
+    this.watcher.unsubscribe();
     this.removeLayerFromIDB();
     super.remove();
   }

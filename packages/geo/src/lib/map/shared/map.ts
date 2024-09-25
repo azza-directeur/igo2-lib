@@ -352,9 +352,9 @@ export class IgoMap implements MapBase {
 
   /**
    * Remove all layers
-   * @deprecated use this.layerController.clear
+   * @deprecated use this.layerController.reset
    */
   removeAllLayers() {
-    this.layerController.clear();
+    this.layerController.reset();
   }
 }

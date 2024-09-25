@@ -8,17 +8,8 @@ import { LanguageService } from '@igo2/core/language';
 import { Message, MessageService } from '@igo2/core/message';
 import { RouteService } from '@igo2/core/route';
 import { StorageService } from '@igo2/core/storage';
-import {
-  AnyLayer,
-  AnyLayerOptions,
-  ExportService,
-  Layer,
-  MapBase,
-  getLinkedLayerParent,
-  isBaseLayer,
-  isLayerGroup,
-  isLayerItem
-} from '@igo2/geo';
+import type { AnyLayer, Layer, MapBase } from '@igo2/geo';
+import { ExportService, isLayerGroup } from '@igo2/geo';
 import { ObjectUtils, uuid } from '@igo2/utils';
 
 import GeoJSON from 'ol/format/GeoJSON';
@@ -518,16 +509,14 @@ export class ContextService {
       extraFeatures: []
     };
 
-    context.layers = igoMap.layerController.all
-      .filter((l) => isBaseLayer(l))
-      .map((l: Layer) => {
-        return {
-          baseLayer: true,
-          sourceOptions: l.options.sourceOptions,
-          title: l.options.title,
-          visible: l.visible
-        };
-      });
+    context.layers = igoMap.layerController.baseLayers.map((l: Layer) => {
+      return {
+        baseLayer: true,
+        sourceOptions: l.options.sourceOptions,
+        title: l.options.title,
+        visible: l.visible
+      };
+    });
 
     layers.forEach((layer) => {
       if (isLayerGroup(layer)) {

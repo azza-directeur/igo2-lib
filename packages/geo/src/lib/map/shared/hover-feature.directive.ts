@@ -114,13 +114,6 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
         this.subscribeToPointerStore();
         this.listenToMapClick();
       });
-
-    // To handle context change without using the contextService.
-    this.layers$$ = this.map.layerController.all$.subscribe((layers) => {
-      if (this.store && !layers.find((l) => l.id === 'hoverFeatureId')) {
-        this.initStore();
-      }
-    });
   }
 
   /**
