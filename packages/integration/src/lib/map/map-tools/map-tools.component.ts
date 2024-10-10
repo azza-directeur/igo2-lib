@@ -143,9 +143,7 @@ export class MapToolsComponent implements OnInit, OnDestroy {
 
   get visibleOrInRangeLayers$(): Observable<AnyLayer[]> {
     return this.layers$.pipe(
-      map((layers) =>
-        layers.filter((layer) => layer.visible && layer.isInResolutionsRange)
-      )
+      map((layers) => layers.filter((layer) => layer.displayed))
     );
   }
 

@@ -7,13 +7,20 @@ import { Source } from 'ol/source';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
 import { DataSource, Legend } from '../../../datasource/shared/datasources';
+import { isLinkMaster } from '../../../map/shared/linkedLayers.utils';
 import type { MapBase } from '../../../map/shared/map.abstract';
 import { GeoDBService } from '../../../offline/geoDB/geoDB.service';
 import { LayerDBService } from '../../../offline/layerDB/layerDB.service';
-import { isSaveableLayer } from '../../utils/layer.utils';
+import {
+  isLayerItem,
+  isLayerLinked,
+  isSaveableLayer
+} from '../../utils/layer.utils';
+import { AnyLayer } from './any-layer';
 import { LayerBase, LayerGroupBase } from './layer-base';
 import { type LayerGroup } from './layer-group';
-import { LayerOptions } from './layer.interface';
+import { type LayerOptions } from './layer.interface';
+import { Linked } from './linked-layer';
 
 export abstract class Layer extends LayerBase {
   declare dataSource: DataSource;
@@ -23,6 +30,8 @@ export abstract class Layer extends LayerBase {
   hasBeenVisible$ = new BehaviorSubject<boolean>(undefined);
   legend: Legend[];
   legendCollapsed = true;
+  link?: Linked;
+  linkParent?: Linked;
   private resolution$$: Subscription;
 
   get id(): string {
@@ -33,7 +42,6 @@ export abstract class Layer extends LayerBase {
     return super.visible;
   }
   set visible(value: boolean) {
-    this.ol.setVisible(value);
     super.visible = value;
     if (!this.hasBeenVisible$.value && value) {
       this.hasBeenVisible$.next(value);
@@ -104,8 +112,8 @@ export abstract class Layer extends LayerBase {
 
   protected abstract createOlLayer(): OlLayer<Source>;
 
-  setMap(map: MapBase, parent?: LayerGroupBase | undefined): void {
-    super.setMap(map, parent);
+  init(map: MapBase): void {
+    super.init(map);
 
     map.layerWatcher.watchLayer(this);
 
@@ -117,19 +125,92 @@ export abstract class Layer extends LayerBase {
         });
       }
     });
+
+    this.createLink();
   }
 
-  remove(): void {
-    if (!this.map) {
-      console.error(`No map for ${this.title}`);
+  createLink(): void {
+    if (!isLinkMaster(this) || this.link) {
       return;
     }
+    this.link = new Linked(this);
+  }
 
+  remove(soft: boolean): void {
+    super.remove(soft);
+
+    if (soft) {
+      return;
+    }
     this.unobserveResolution();
 
-    super.remove();
-
     this.map.layerWatcher.unwatchLayer(this);
+
+    if (isLinkMaster(this)) {
+      this.link?.deleteChildren();
+      this.link?.destroy();
+    }
+
+    if (isLayerLinked(this)) {
+      const parentLayer = this.linkParent?.layer;
+      const hasSync = this.linkParent?.hasSyncDeletion(this);
+
+      this.linkParent?.remove(this);
+      this.linkParent = undefined;
+
+      if (hasSync && parentLayer) {
+        parentLayer.remove(false);
+      }
+    }
+  }
+
+  add(parent?: LayerGroupBase, soft?: boolean): void {
+    super.add(parent);
+
+    if (soft) {
+      return;
+    }
+    if (isLayerLinked(this)) {
+      if (isLinkMaster(this)) {
+        this.link.init();
+      }
+
+      this.createLinkWithParent();
+    }
+  }
+
+  moveTo(parent?: LayerGroup): void {
+    super.moveTo(parent);
+
+    if (isLayerLinked(this)) {
+      this.link?.move(this, parent);
+      this.linkParent?.move(this, parent);
+    }
+  }
+
+  private createLinkWithParent() {
+    const linkParent = this.findParentByLinkId(
+      this.map.layerController.all,
+      this.options.linkedLayers.linkId
+    );
+    if (linkParent) {
+      this.linkParent = linkParent.link;
+      linkParent?.link.add(this);
+    }
+  }
+
+  private findParentByLinkId(layers: AnyLayer[], id: string): Layer {
+    return layers.find((layer) => {
+      if (!isLayerItem(layer)) {
+        return;
+      }
+      if (layer.options.linkedLayers?.links) {
+        return layer.options.linkedLayers.links.some((l) =>
+          l.linkedIds.includes(id)
+        );
+      }
+      return false;
+    }) as Layer;
   }
 
   private showMessage(message: Message) {

@@ -113,6 +113,9 @@ export class WmsWorkspaceService {
       ? layer.options.linkedLayers.linkId
       : wmsLinkId),
       (layer.options.linkedLayers.links = clonedLinks);
+
+    layer.createLink();
+
     interface WFSoptions
       extends WFSDataSourceOptions,
         OgcFilterableDataSourceOptions {}
@@ -134,6 +137,8 @@ export class WmsWorkspaceService {
 
     this.layerService
       .createAsyncLayer({
+        title: layer.title,
+        parentId: layer.options.parentId,
         isIgoInternalLayer: true,
         id: wfsLinkId,
         linkedLayers: {
@@ -142,7 +147,6 @@ export class WmsWorkspaceService {
         workspace: wksLayerOption,
         showInLayerList: false,
         opacity: 0,
-        title: layer.title,
         minResolution:
           layer.options.workspace?.minResolution || layer.minResolution || 0,
         maxResolution:

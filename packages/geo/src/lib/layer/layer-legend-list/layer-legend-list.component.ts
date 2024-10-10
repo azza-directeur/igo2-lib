@@ -86,8 +86,7 @@ export class LayerLegendListComponent implements OnInit, OnDestroy {
           this.layers
             .slice(0)
             .filter((layer) => !isBaseLayer(layer))
-            .filter((layer) => layer.visible && layer.isInResolutionsRange)
-            .length > 0
+            .filter((layer) => layer.displayed).length > 0
         );
         this.hasVisibleAndNotInRangeLayers$.next(
           this.layers
@@ -116,9 +115,7 @@ export class LayerLegendListComponent implements OnInit, OnDestroy {
     this.change$.next();
   }
   private computeShownLayers(layers: AnyLayer[]) {
-    let shownLayers = layers.filter(
-      (layer) => layer.visible && layer.isInResolutionsRange
-    );
+    let shownLayers = layers.filter((layer) => layer.displayed);
     if (this.showAllLegendsValue) {
       shownLayers = layers;
     }

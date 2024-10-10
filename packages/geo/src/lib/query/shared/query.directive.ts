@@ -201,7 +201,7 @@ export class QueryDirective implements AfterViewInit, OnDestroy {
         event.pixel,
         (featureOL: OlFeature, layerOL: any) => {
           const layer = this.map.getLayerById(layerOL.values_._layer.id);
-          if (isLayerGroup(layer)) {
+          if (isLayerGroup(layer) || !layer.displayed) {
             return;
           }
           if (

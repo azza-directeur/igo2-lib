@@ -1,27 +1,24 @@
 import { Tree } from '@igo2/utils';
 
-import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
-
 import {
-  getAllChildLayersByDeletion,
-  getAllChildLayersByProperty,
-  getRootParentByDeletion,
-  getRootParentByProperty
-} from '../../map/shared/linkedLayers.utils';
+  BehaviorSubject,
+  Observable,
+  combineLatest,
+  debounceTime,
+  map
+} from 'rxjs';
+
 import { type MapBase } from '../../map/shared/map.abstract';
 import {
-  getLinkedLayerParentIndex,
   isBaseLayer,
   isLayerGroup,
   isLayerItem,
-  isLayerLinked,
-  isLayerLinkedParent
+  isLayerLinked
 } from '../utils/layer.utils';
 import { LayerSelectionModel } from './layer-selection';
-import { AnyLayer } from './layers/any-layer';
-import { Layer } from './layers/layer';
-import { LayerGroup } from './layers/layer-group';
-import { LinkedProperties } from './layers/layer.interface';
+import type { AnyLayer } from './layers/any-layer';
+import type { Layer } from './layers/layer';
+import type { LayerGroup } from './layers/layer-group';
 
 // Below 10 is reserved for BaseLayer
 const ZINDEX_MIN = 10;
@@ -43,6 +40,8 @@ export class LayerController extends LayerSelectionModel {
 
   /** LinkedLayer and other layer that are not in the previous category and not visible in tree */
   private _otherLayers: AnyLayer[] = [];
+
+  layersFlattened: AnyLayer[] = [];
 
   private _layers$ = new BehaviorSubject<AnyLayer[] | undefined>(undefined);
   layers$ = this._layers$.asObservable();
@@ -66,6 +65,7 @@ export class LayerController extends LayerSelectionModel {
     super();
 
     this.all$ = combineLatest([this.layersFlattened$, this.baseLayers$]).pipe(
+      debounceTime(10),
       map((_) => this.all)
     );
 
@@ -98,24 +98,22 @@ export class LayerController extends LayerSelectionModel {
     return this.tree.data;
   }
 
-  get layersFlattened(): AnyLayer[] {
-    return this.tree.flattened;
-  }
-
   add(...layers: AnyLayer[]): void {
     let offset = 0;
-
-    this.fixLinkedLayersOrder(layers);
 
     const addedLayers = layers
       .map((layer) => this.handleAdd(layer, offset))
       .filter(Boolean);
 
     if (!addedLayers.length) {
+      this.notify();
       return;
     }
 
     this.tree.add(...addedLayers);
+
+    this.layersFlattened = this.tree.flattened;
+    addedLayers.forEach((layer) => layer.add());
 
     this.recalculateZindex();
     this.notify();
@@ -130,6 +128,9 @@ export class LayerController extends LayerSelectionModel {
     }
     const layerBefore = this.getBefore(layer);
     this.tree.addBefore(layerBefore?.id, layer);
+
+    this.layersFlattened = this.tree.flattened;
+
     this.recalculateZindex();
     this.notify();
   }
@@ -141,6 +142,9 @@ export class LayerController extends LayerSelectionModel {
       return;
     }
     this.tree.remove(layer);
+
+    this.layersFlattened = this.tree.flattened;
+
     this.recalculateZindex();
     this.notify();
   }
@@ -161,6 +165,9 @@ export class LayerController extends LayerSelectionModel {
       return list;
     }, []);
     this.tree.remove(...list);
+
+    this.layersFlattened = this.tree.flattened;
+
     this.notify();
   }
 
@@ -203,14 +210,14 @@ export class LayerController extends LayerSelectionModel {
     const position = this.getPosition(layers[0]);
     let index = position.pop();
     this.moveTo(position.concat(--index), ...layers);
-    this._internalMove(layers);
+    this._internalMove();
   }
 
   lower(...layers: AnyLayer[]): void {
     const position = this.getPosition(layers[layers.length - 1]);
-    const index = position.pop();
-    this.moveTo(position.concat(index + 2), ...layers);
-    this._internalMove(layers);
+    let index = position.pop();
+    this.moveTo(position.concat(index + 2), ...layers); // +2 because we use moveBefore
+    this._internalMove();
   }
 
   /** Reset all except SystemLayer */
@@ -250,43 +257,6 @@ export class LayerController extends LayerSelectionModel {
       : this.treeLayers;
   }
 
-  private handleLinkedLayer(layer: Layer): void {
-    const linkedLayers = this.getLinkedLayersOnZindex(layer);
-
-    linkedLayers.forEach((linkLayer) => {
-      if (!linkLayer.options.showInLayerList) {
-        linkLayer.zIndex = layer.zIndex;
-        return;
-      }
-      const position = this.getPosition(layer, 'below');
-      this.moveTo(position, linkLayer);
-    });
-  }
-
-  private getLinkedLayersOnZindex(layer: Layer): AnyLayer[] {
-    const parentLayer = getRootParentByProperty(
-      this.all,
-      layer,
-      LinkedProperties.ZINDEX
-    );
-    const isParentLayer = layer.id === parentLayer.id;
-    const children = getAllChildLayersByProperty(
-      this.all,
-      parentLayer,
-      [],
-      LinkedProperties.ZINDEX
-    );
-
-    if (isParentLayer) {
-      return children;
-    } else {
-      return [
-        parentLayer,
-        ...children.filter((child) => child.id !== layer.id)
-      ];
-    }
-  }
-
   private handleMove(layers: AnyLayer[], parent?: LayerGroup): void {
     if (!layers?.length) {
       return;
@@ -295,22 +265,11 @@ export class LayerController extends LayerSelectionModel {
     layers.forEach((layer) => {
       layer.moveTo(parent);
     });
-    this._internalMove(layers);
+    this._internalMove();
   }
 
-  private _internalMove(layers: AnyLayer[]) {
+  private _internalMove() {
     this.recalculateZindex();
-
-    if (layers.some((layer) => isLayerLinked(layer))) {
-      layers.forEach((layer) => {
-        if (isLayerLinked(layer)) {
-          this.handleLinkedLayer(layer);
-        }
-      });
-
-      this.recalculateZindex();
-    }
-
     this.notify();
   }
 
@@ -346,7 +305,7 @@ export class LayerController extends LayerSelectionModel {
     const zIndex = this.getZindexOffset(layer, offset);
     this.setZindex(layer, zIndex);
 
-    layer.setMap(this._map, null);
+    layer.init(this._map);
 
     if (isBaseLayer(layer)) {
       if (layer.visible) {
@@ -363,21 +322,20 @@ export class LayerController extends LayerSelectionModel {
       this._otherLayers.push(layer);
     }
 
+    const parent: LayerGroup | undefined = layer.parentId
+      ? (this.getById(layer.parentId) as LayerGroup)
+      : undefined;
+    layer.add(parent);
+
     return;
   }
 
   private _remove(layer: AnyLayer): AnyLayer | AnyLayer[] {
-    if (isLayerLinked(layer)) {
-      const layers = this.handleLinkedLayersDeletion(layer);
-      layers.forEach((layer) => layer.remove());
-      return layers;
-    }
-
     if (this.isSystemLayer(layer)) {
       this.removeSystemLayer(layer);
     }
 
-    layer.remove();
+    layer.remove(false);
     return layer;
   }
 
@@ -393,21 +351,6 @@ export class LayerController extends LayerSelectionModel {
 
   private isSystemLayer(layer: AnyLayer): boolean {
     return isLayerItem(layer) && layer.isIgoInternalLayer;
-  }
-
-  /**
-   * Build a list of linked layers to delete
-   * @param srcLayer Layer that has triggered the deletion
-   * @param layersToRemove list to append the layer to delete into
-   */
-  private handleLinkedLayersDeletion(layer: Layer): AnyLayer[] {
-    let rootParentByDeletion = getRootParentByDeletion(layer, this.all);
-    if (!rootParentByDeletion) {
-      return [layer];
-    }
-    return getAllChildLayersByDeletion(this.all, rootParentByDeletion, [
-      rootParentByDeletion
-    ]);
   }
 
   private clearBaselayers(): void {
@@ -457,23 +400,5 @@ export class LayerController extends LayerSelectionModel {
   private notify(): void {
     this._layers$.next(this.treeLayers);
     this._baseLayers$.next(this.baseLayers);
-  }
-
-  private fixLinkedLayersOrder(layers: AnyLayer[]): void {
-    const linkedLayersChild = layers.filter((layer) => {
-      if (isLayerLinked(layer) && !isLayerLinkedParent(layer)) {
-        return true;
-      }
-      return false;
-    }) as Layer[];
-
-    linkedLayersChild.forEach((layer) => {
-      const parentIndex = getLinkedLayerParentIndex(layer, layers);
-      const index = layers.findIndex((l) => l.id === layer.id);
-      if (parentIndex > index) {
-        layers.splice(parentIndex + 1, 0, layer);
-        layers.splice(index, 1);
-      }
-    });
   }
 }

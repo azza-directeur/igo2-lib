@@ -86,7 +86,6 @@ type LayerFlatNode<T = AnyLayer> = TreeFlatNode<T>;
 })
 export class LayerListComponent {
   public toggleOpacity = false;
-  disabledModel = new SelectionModel<LayerFlatNode>(true);
   isInit: boolean;
 
   @Input({ required: true }) controller: LayerController;
@@ -129,7 +128,10 @@ export class LayerListComponent {
     this._transformer,
     (node) => node.level,
     (node) => node.isGroup,
-    (node) => (node as LayerGroup).children.sort((a, b) => a.zIndex + b.zIndex)
+    (node) =>
+      (node as LayerGroup).children
+        .filter((layer) => layer.showInLayerList)
+        .sort((a, b) => a.zIndex + b.zIndex)
   );
 
   dataSource: MatTreeFlatDataSource<AnyLayer, LayerFlatNode>;
@@ -185,15 +187,6 @@ export class LayerListComponent {
         : type === 'draw'
           ? 'draw'
           : VECTOR_SQUARE_ICON;
-  }
-
-  handleVisibilityChange(_event: Event, node: LayerFlatNode): void {
-    this.handleDisabled(node);
-
-    if (isLayerGroup(node.data)) {
-      const descendants = this.treeControl.getDescendants(node);
-      descendants.forEach((descendant) => this.handleDisabled(descendant));
-    }
   }
 
   dropNode({ node, ref, position }: TreeDropEvent<AnyLayer>): void {
@@ -253,46 +246,6 @@ export class LayerListComponent {
     node.data.expanded = this.treeControl.isExpanded(node);
   }
 
-  private handleDisabled(node: LayerFlatNode): void {
-    const disabled = this.nodeIsDisabled(node);
-
-    disabled
-      ? this.disabledModel.select(node)
-      : this.disabledModel.deselect(node);
-  }
-
-  private nodeIsDisabled(node: LayerFlatNode): boolean {
-    const layer = this.findLayerById(node.id);
-    const parentDisabled = this.ancestorIsDisabled(node);
-    return parentDisabled || !layer.visible;
-  }
-
-  private ancestorIsDisabled(node: LayerFlatNode): boolean {
-    const parentNode = this.getNodeAncestors(node.id);
-    if (!parentNode) {
-      return false;
-    }
-
-    const parentInModel = Array.from(this.disabledModel['_selection']).some(
-      (nodeDisabled: LayerFlatNode) => nodeDisabled.id === parentNode.id
-    );
-    const parentLayer = this.findLayerById(parentNode.data.id);
-    return parentInModel || !parentLayer.visible;
-  }
-
-  private getNodeAncestors(id: string): TreeFlatNode | undefined {
-    const nodes = this.treeControl.dataNodes;
-    const index = nodes.findIndex((node) => node.id === id);
-    return nodes
-      .slice(0, index)
-      .reverse()
-      .find((node) => node.level < nodes[index].level);
-  }
-
-  private findLayerById(id: string): AnyLayer {
-    return this.controller.layersFlattened.find((layer) => layer.id === id);
-  }
-
   private findNodeByLayerId(id: string): LayerFlatNode | undefined {
     return this.treeControl.dataNodes.find((node) => node.id === id);
   }
@@ -306,11 +259,6 @@ export class LayerListComponent {
           this.treeControl.expand(node)
         )
       : this.expandGroup(layers);
-    this.restoreModel(this.disabledModel, (node) =>
-      this.disabledModel.select(node)
-    );
-
-    this.treeControl.dataNodes.forEach((node) => this.handleDisabled(node));
 
     if (!this.isInit && layers.length) {
       this.isInit = true;

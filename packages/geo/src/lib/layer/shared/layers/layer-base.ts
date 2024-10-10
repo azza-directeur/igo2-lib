@@ -2,13 +2,12 @@ import { SubjectStatus } from '@igo2/utils';
 
 import BaseLayer from 'ol/layer/Base';
 
-import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Subject, Subscription, combineLatest } from 'rxjs';
 
-import { DataSource } from '../../../datasource/shared/datasources/datasource';
-import { MapBase } from '../../../map';
+import type { DataSource } from '../../../datasource/shared/datasources/datasource';
+import type { MapBase } from '../../../map/shared/map.abstract';
 import { getResolutionFromScale } from '../../../map/shared/map.utils';
-import { LayerOptions, LayerType } from './layer.interface';
+import type { LayerOptions, LayerType } from './layer.interface';
 
 export type AnyLayerBase = LayerBase | LayerGroupBase;
 
@@ -57,6 +56,9 @@ export abstract class LayerBase {
     return this.ol.getZIndex();
   }
   set zIndex(zIndex: number) {
+    if (zIndex === this.zIndex) {
+      return;
+    }
     this.ol.setZIndex(zIndex);
   }
 
@@ -97,6 +99,9 @@ export abstract class LayerBase {
   }
 
   set visible(value: boolean) {
+    if (value === this.visible) {
+      return;
+    }
     this.ol.setVisible(value);
     this._visible$.next(value);
   }
@@ -107,15 +112,17 @@ export abstract class LayerBase {
   readonly visible$ = this._visible$.asObservable();
 
   get displayed(): boolean {
-    const isVisible = this.parent
-      ? this.parent.displayed && this.visible
-      : this.visible;
-    return isVisible && this.isInResolutionsRange;
+    return this._displayed$.value;
   }
-  readonly displayed$: Observable<boolean> = combineLatest([
-    this.isInResolutionsRange$,
-    this.visible$
-  ]).pipe(map((bunch: [boolean, boolean]) => bunch[0] && bunch[1]));
+  set displayed(value: boolean) {
+    if (value === this.displayed) {
+      return;
+    }
+    this._displayed$.next(value);
+  }
+  private _displayed$ = new BehaviorSubject<boolean>(undefined);
+  displayed$ = this._displayed$.asObservable();
+  private displayed$$: Subscription;
 
   get showInLayerList(): boolean {
     return this.options.showInLayerList !== false;
@@ -131,7 +138,9 @@ export abstract class LayerBase {
     };
   }
 
-  constructor(public options: LayerOptions) {}
+  constructor(public options: LayerOptions) {
+    this.initDisplayed$$();
+  }
 
   afterCreated(): void {
     if (this.options.zIndex !== undefined) {
@@ -155,14 +164,30 @@ export abstract class LayerBase {
       this.options.opacity === undefined ? 1 : this.options.opacity;
   }
 
-  setMap(map: any, parent?: LayerGroupBase) {
+  init(map: MapBase): void {
     this.map = map;
-    this.parent = parent;
+  }
 
+  add(parent?: LayerGroupBase, _soft?: boolean): void {
+    this.addParent(parent);
     this.parent ? this.parent.addChild(this) : this.map.ol.addLayer(this.ol);
   }
 
-  remove(): void {
+  addParent(parent?: LayerGroupBase): void {
+    if (this.parent && this.parent === parent) {
+      return;
+    }
+
+    this.parent = parent;
+
+    if (!this.map && this.parent) {
+      this.map = this.parent.map;
+    }
+
+    this.initDisplayed$$();
+  }
+
+  remove(_soft?: boolean): void {
     if (!this.map) {
       console.error(`No map for ${this.title}`);
       return;
@@ -170,6 +195,11 @@ export abstract class LayerBase {
     this.parent
       ? this.parent.removeChild(this)
       : this.map.ol.removeLayer(this.ol);
+  }
+
+  reset(parent?: LayerGroupBase): void {
+    this.remove(true);
+    this.add(parent, true);
   }
 
   moveTo(parent?: LayerGroupBase): void {
@@ -183,8 +213,24 @@ export abstract class LayerBase {
       }
     }
 
-    this.remove();
-    this.setMap(this.map, parent);
+    this.reset(parent);
+  }
+
+  private initDisplayed$$(): void {
+    this.displayed$$?.unsubscribe();
+
+    const obs$ = [this.isInResolutionsRange$, this.visible$];
+
+    if (this.parent) {
+      obs$.push(this.parent.displayed$);
+    }
+
+    this.displayed$$ = combineLatest(obs$).subscribe(
+      ([inRes, visible, parentDisplayed = null]) => {
+        const isVisible = this.parent ? parentDisplayed && visible : visible;
+        this.displayed = isVisible && inRes;
+      }
+    );
   }
 }
 

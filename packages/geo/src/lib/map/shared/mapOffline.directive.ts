@@ -2,8 +2,9 @@ import { AfterViewInit, Directive } from '@angular/core';
 
 import { MessageService } from '@igo2/core/message';
 import { NetworkService } from '@igo2/core/network';
+import { SubjectStatus } from '@igo2/utils';
 
-import { combineLatest } from 'rxjs';
+import { combineLatest, filter } from 'rxjs';
 
 import { DataSourceOptions } from '../../datasource/shared/datasources/datasource.interface';
 import { AnyLayer, isLayerGroup } from '../../layer';
@@ -64,12 +65,15 @@ export class MapOfflineDirective implements AfterViewInit {
     combineLatest([
       this.networkService.currentState(),
       this.map.forcedOffline$,
-      this.map.layerController.all$
+      this.map.status$.pipe(filter((status) => status === SubjectStatus.Done))
     ]).subscribe((bunch) => {
       const online = bunch[0].connection;
       const forcedOffline = bunch[1];
-      const layers = bunch[2];
-      this.handleLayersOnlineState(online, forcedOffline, layers);
+      this.handleLayersOnlineState(
+        online,
+        forcedOffline,
+        this.map.layerController.all
+      );
     });
   }
 

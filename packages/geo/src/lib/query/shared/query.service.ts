@@ -64,15 +64,14 @@ export class QueryService {
       });
     }
 
-    const newLayers = layers
-      .filter((layer) => layer.visible && layer.isInResolutionsRange)
+    const queries$ = layers
+      .filter((layer) => layer.displayed === true)
       .map((layer) => this.queryLayer(layer, options));
     // the directive accept array in this format [observable, observable...]
     // if we use multiple 'url' in queryUrl so the result => this form [observable, observable, [observable, observable]]
     // so we need to flat the array
-    // eslint-disable-next-line prefer-spread
-    const flatArray = [].concat.apply([], newLayers);
-    return flatArray;
+    const flattenedQueries$ = [].concat.apply([], queries$);
+    return flattenedQueries$;
   }
 
   queryLayer(

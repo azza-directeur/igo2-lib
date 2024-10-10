@@ -14,7 +14,6 @@ import { XYZDataSource } from '../../../datasource/shared/datasources/xyz-dataso
 import type { MapBase } from '../../../map/shared/map.abstract';
 import { TileWatcher } from '../../utils/tile-watcher';
 import { Layer } from './layer';
-import { LayerGroup } from './layer-group';
 import { LayerType } from './layer.interface';
 import { TileLayerOptions } from './tile-layer.interface';
 
@@ -71,17 +70,17 @@ export class TileLayer extends Layer {
     tile.getImage().src = modifiedUrl;
   }
 
-  public setMap(map: MapBase | undefined, parent: LayerGroup | undefined) {
+  public init(map: MapBase | undefined) {
     if (map === undefined) {
       this.watcher.unsubscribe();
     } else {
       this.watcher.subscribe(() => void 1);
     }
-    super.setMap(map, parent);
+    super.init(map);
   }
 
-  remove(): void {
+  remove(soft?: boolean): void {
     this.watcher.unsubscribe();
-    super.remove();
+    super.remove(soft);
   }
 }

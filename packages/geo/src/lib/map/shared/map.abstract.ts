@@ -1,6 +1,5 @@
 import { SubjectStatus } from '@igo2/utils';
 
-import { ObjectEvent } from 'ol/Object';
 import { Layer as OlLayer } from 'ol/layer';
 import { Projection } from 'ol/proj';
 import { Source } from 'ol/source';
@@ -22,14 +21,14 @@ import {
   MapExtent,
   MapViewOptions
 } from '../shared/map.interface';
-import { LayerWatcher } from '../utils';
+import { LayerWatcher, LayerWatcherChange } from '../utils';
 
 export abstract class MapBase {
   ol: Map;
   forcedOffline$: BehaviorSubject<boolean>;
   layersAddedByClick$: BehaviorSubject<AnyLayer[]>;
   status$: Subject<SubjectStatus>;
-  propertyChange$: Subject<{ event: ObjectEvent; layer: Layer }>;
+  propertyChange$: Subject<LayerWatcherChange>;
   overlay: Overlay;
   queryResultsOverlay: Overlay;
   searchResultsOverlay: Overlay;

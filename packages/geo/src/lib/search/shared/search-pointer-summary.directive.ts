@@ -157,7 +157,7 @@ export class SearchPointerSummaryDirective
     this.unlistenToMapPointerMove();
     this.unsubscribeToPointerStore();
     this.unsubscribeReverseSearch();
-    this.layers$$.unsubscribe();
+    this.layers$$?.unsubscribe();
   }
 
   /**
@@ -257,7 +257,7 @@ export class SearchPointerSummaryDirective
    * @internal
    */
   unsubscribeToPointerStore() {
-    this.store$$.unsubscribe();
+    this.store$$?.unsubscribe();
   }
   /**
    * Unsubscribe to reverse seatch store.

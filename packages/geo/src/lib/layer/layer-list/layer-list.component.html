@@ -20,13 +20,11 @@
       class="tree-node-item"
       [layer]="node.data"
       [visible]="node.data.visible"
-      [disabled]="disabledModel.isSelected(node)"
       [viewerOptions]="viewerOptions"
       [selected]="isSelected(node.data) || isDescendantSelection(node.data)"
       [selectionDisabled]="isDescendantSelection(node.data)"
       (action)="toggleActive($event)"
       (selectChange)="handleSelect($event, node.data)"
-      (visibilityChange)="handleVisibilityChange($event, node)"
     >
       <!-- use a disabled button to provide padding for tree leaf -->
       <span
@@ -56,14 +54,12 @@
       [matTreeNodePaddingIndent]="24"
       class="tree-node-item"
       [layer]="node.data"
-      [disabled]="disabledModel.isSelected(node)"
       [viewerOptions]="viewerOptions"
       [selected]="isSelected(node.data) || isDescendantSelection(node.data)"
       [selectionDisabled]="isDescendantSelection(node.data)"
       (action)="toggleActive($event)"
       (expand)="treeControl.toggle(node); handleNodeToggle(node)"
       (selectChange)="handleSelect($event, node.data)"
-      (visibilityChange)="handleVisibilityChange($event, node)"
     >
       <button
         mat-icon-button

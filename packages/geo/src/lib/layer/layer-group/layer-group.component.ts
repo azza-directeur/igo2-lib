@@ -44,16 +44,6 @@ export class LayerGroupComponent implements OnInit {
   @Input() layer: LayerGroup;
   @Input() viewerOptions: LayerViewerOptions;
 
-  @Input()
-  set disabled(value: boolean) {
-    this._disabled = value;
-    this.handleDisabled();
-  }
-  get disabled(): boolean {
-    return this._disabled;
-  }
-  private _disabled: boolean;
-
   @Input() selected: boolean;
   @Input() selectionDisabled: boolean;
 
@@ -78,7 +68,7 @@ export class LayerGroupComponent implements OnInit {
   get tooltipMessage(): string {
     return !this.layer.isInResolutionsRange
       ? 'igo.geo.layer.notInResolution'
-      : this.layer.visible && this.disabled
+      : this.layer.visible && this.isDisabled
         ? 'igo.geo.layer.group.hideChildren'
         : this.layer.visible
           ? 'igo.geo.layer.group.hide'
@@ -86,26 +76,17 @@ export class LayerGroupComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.layer.isInResolutionsRange$.subscribe(() => this.handleDisabled());
+    this.layer.displayed$.subscribe((displayed) => {
+      this.isDisabled = !displayed;
+    });
   }
 
   onToggle(): void {
     this.collapsed = !this.collapsed;
   }
 
-  private handleDisabled(): void {
-    const hasDescendant = !!this.layer.descendants.length;
-    const inDescendantResolution = this.layer.isInResolutionsRange;
-    this.isDisabled =
-      this.disabled ||
-      (hasDescendant && !inDescendantResolution) ||
-      !this.layer.visible;
-  }
-
   toggleVisibility(event: Event): void {
     event.stopPropagation();
-
-    this.handleDisabled();
     this.visibilityChange.emit(event);
   }
 

@@ -3,7 +3,6 @@ import { StorageService } from '@igo2/core/storage';
 import { SubjectStatus } from '@igo2/utils';
 
 import olMap from 'ol/Map';
-import { ObjectEvent } from 'ol/Object';
 import olView, { ViewOptions } from 'ol/View';
 import olControlAttribution from 'ol/control/Attribution';
 import olControlScaleLine from 'ol/control/ScaleLine';
@@ -16,19 +15,15 @@ import olSource from 'ol/source/Source';
 import { getUid } from 'ol/util';
 
 import proj4 from 'proj4';
-import { BehaviorSubject, Subject, pairwise, skipWhile } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 import { FeatureDataSource } from '../../datasource/shared/datasources/feature-datasource';
 import { LayerController, isBaseLayer, isLayerItem } from '../../layer';
 import { AnyLayer, Layer } from '../../layer/shared/layers';
 import { Overlay } from '../../overlay/shared/overlay';
-import { LayerWatcher } from '../utils/layer-watcher';
+import { LayerWatcher, LayerWatcherChange } from '../utils/layer-watcher';
 import { MapGeolocationController } from './controllers/geolocation';
 import { MapViewController } from './controllers/view';
-import {
-  handleLayerPropertyChange,
-  initLayerSyncFromRootParentLayers
-} from './linkedLayers.utils';
 import type { MapBase } from './map.abstract';
 import {
   MapAttributionOptions,
@@ -44,7 +39,7 @@ export class IgoMap implements MapBase {
   public forcedOffline$ = new BehaviorSubject<boolean>(false);
   public layersAddedByClick$ = new BehaviorSubject<AnyLayer[]>(undefined);
   public status$: Subject<SubjectStatus>;
-  public propertyChange$: Subject<{ event: ObjectEvent; layer: Layer }>;
+  public propertyChange$: Subject<LayerWatcherChange>;
   public overlay: Overlay;
   public queryResultsOverlay: Overlay;
   public searchResultsOverlay: Overlay;
@@ -153,40 +148,8 @@ export class IgoMap implements MapBase {
           this.mapViewOptions
         );
       }
-
-      this.layerController.all$
-        .pipe(pairwise())
-        .subscribe(([prevLayers, currentLayers]) => {
-          let prevLayersId;
-          if (prevLayers) {
-            prevLayersId = prevLayers.map((l) => l.id);
-          }
-          const layers = currentLayers.filter(
-            (l) => !prevLayersId?.includes(l.id)
-          );
-
-          for (const layer of layers) {
-            if (isLayerItem(layer) && layer.options.linkedLayers) {
-              layer.ol.once('postrender', () => {
-                initLayerSyncFromRootParentLayers(currentLayers, layers);
-              });
-            }
-          }
-        });
       this.viewController.monitorRotation();
     });
-
-    // TODO(MIGO2-492): WHAT IS THAT?
-    this.propertyChange$
-      .pipe(skipWhile((pc) => !pc))
-      .subscribe((p) =>
-        handleLayerPropertyChange(
-          this.layerController.treeLayers,
-          p.event,
-          p.layer,
-          this.viewController
-        )
-      );
   }
 
   setTarget(id: string) {

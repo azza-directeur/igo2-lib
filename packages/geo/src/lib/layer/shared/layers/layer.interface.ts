@@ -77,6 +77,7 @@ export interface LayersLink {
   links?: LayersLinkProperties[];
 }
 export interface LayersLinkProperties {
+  bidirectionnal?: boolean;
   linkedIds: string[];
   syncedDelete: boolean;
   properties: LinkedProperties[];

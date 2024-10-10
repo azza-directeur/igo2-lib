@@ -10,7 +10,6 @@ import { type MapBase } from '../../../map/shared/map.abstract';
 import { ImageWatcher } from '../../utils/image-watcher';
 import { ImageLayerOptions } from './image-layer.interface';
 import { Layer } from './layer';
-import { type LayerGroup } from './layer-group';
 import { LayerType } from './layer.interface';
 
 export class ImageLayer extends Layer {
@@ -51,18 +50,18 @@ export class ImageLayer extends Layer {
     return image;
   }
 
-  public setMap(map: MapBase | undefined, parent: LayerGroup | undefined) {
+  public init(map: MapBase | undefined) {
     if (map === undefined) {
       this.watcher.unsubscribe();
     } else {
       this.watcher.subscribe(() => void 1);
     }
-    super.setMap(map, parent);
+    super.init(map);
   }
 
-  remove(): void {
+  remove(soft?: boolean): void {
     this.watcher.unsubscribe();
-    super.remove();
+    super.remove(soft);
   }
 
   private customLoader(

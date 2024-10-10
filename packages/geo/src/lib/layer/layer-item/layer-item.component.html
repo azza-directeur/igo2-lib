@@ -35,7 +35,7 @@
     <igo-layer-visibility-button
       [layer]="layer"
       [tooltip]="visibilityTooltip"
-      [disabled]="disabled"
+      [disabled]="isDisabled"
       [inResolutionsRange]="layer.isInResolutionsRange$ | async"
       [showQueryBadge]="(queryBadgeHidden$ | async) === false"
       (visibilityChange)="handleVisibilityChange($event)"

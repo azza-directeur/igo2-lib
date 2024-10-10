@@ -69,16 +69,6 @@ export class LayerItemComponent implements OnInit, OnDestroy {
   @Input() selected: boolean;
   @Input() selectionDisabled: boolean;
 
-  @Input()
-  set disabled(value: boolean) {
-    this._disabled = value;
-    this.handleDisabled();
-  }
-  get disabled(): boolean {
-    return this._disabled;
-  }
-  private _disabled: boolean;
-
   @Input() viewerOptions: LayerViewerOptions;
 
   @Output() action = new EventEmitter<Layer>();
@@ -101,7 +91,7 @@ export class LayerItemComponent implements OnInit, OnDestroy {
     ) {
       return 'igo.geo.layer.notInResolution';
     } else {
-      return this.layer.visible && this.disabled
+      return this.layer.visible && this.isDisabled
         ? 'igo.geo.layer.group.hideChildren'
         : this.layer.visible
           ? 'igo.geo.layer.hideLayer'
@@ -112,6 +102,9 @@ export class LayerItemComponent implements OnInit, OnDestroy {
   constructor(private networkService: NetworkService) {}
 
   ngOnInit() {
+    this.layer.displayed$.subscribe((displayed) => {
+      this.isDisabled = !displayed;
+    });
     if (
       this.layer.visible &&
       this.viewerOptions?.legend?.showForVisibleLayers &&
@@ -155,19 +148,12 @@ export class LayerItemComponent implements OnInit, OnDestroy {
   handleVisibilityChange(event: Event) {
     event.stopPropagation();
 
-    this.handleDisabled();
-
     if (this.viewerOptions.legend.showOnVisibilityChange) {
       this.toggleLegend(!this.layer.visible);
     }
     this.updateQueryBadge();
 
     this.visibilityChange.emit(event);
-  }
-
-  private handleDisabled(): void {
-    this.isDisabled =
-      this.disabled || !this.layer.isInResolutionsRange || !this.layer.visible;
   }
 
   computeTooltip(): string {
@@ -206,7 +192,6 @@ export class LayerItemComponent implements OnInit, OnDestroy {
       this.toggleLegend(true);
     }
     this.inResolutionRange$.next(inResolutionRange);
-    this.handleDisabled();
   }
 
   private updateQueryBadge() {

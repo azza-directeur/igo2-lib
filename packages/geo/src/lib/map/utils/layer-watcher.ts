@@ -1,23 +1,36 @@
 import { SubjectStatus, Watcher } from '@igo2/utils';
 
-import { ObjectEvent } from 'ol/Object';
+import BaseObject, { ObjectEvent } from 'ol/Object';
 import LayerGroup from 'ol/layer/Group';
 
-import { BehaviorSubject, Subscription } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  Observable,
+  Subscription,
+  fromEvent,
+  merge
+} from 'rxjs';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 
-import { AnyLayer } from '../../layer/shared/layers/any-layer';
-import { Layer } from '../../layer/shared/layers/layer';
+import type { AnyLayer } from '../../layer/shared/layers/any-layer';
+import type { Layer } from '../../layer/shared/layers/layer';
 import { LinkedProperties } from '../../layer/shared/layers/layer.interface';
 
+export interface LayerWatcherChange {
+  event: LayerWatcherEvent;
+  layer: Layer;
+}
+
+type LayerWatcherEvent = Pick<ObjectEvent, 'key' | 'oldValue'> & {
+  value: unknown;
+};
+
 export class LayerWatcher extends Watcher {
-  public propertyChange$ = new BehaviorSubject<{
-    event: ObjectEvent;
-    layer: Layer;
-  }>(undefined);
+  public propertyChange$ = new BehaviorSubject<LayerWatcherChange>(undefined);
   private loaded = 0;
   private loading = 0;
   private layers: Layer[] = [];
+  private subscriptionsByLayerId = new Map<string, Subscription[]>();
   private subscriptions: Subscription[] = [];
 
   constructor() {
@@ -32,7 +45,7 @@ export class LayerWatcher extends Watcher {
     this.layers.forEach((layer) => this.unwatchLayer(layer), this);
   }
 
-  setPropertyChange(change: ObjectEvent, layer: Layer) {
+  setPropertyChange(change: LayerWatcherChange) {
     if (
       ![
         LinkedProperties.TIMEFILTER,
@@ -40,12 +53,13 @@ export class LayerWatcher extends Watcher {
         LinkedProperties.VISIBLE,
         LinkedProperties.OPACITY,
         LinkedProperties.MINRESOLUTION,
-        LinkedProperties.MAXRESOLUTION
-      ].includes(change.key as any)
+        LinkedProperties.MAXRESOLUTION,
+        LinkedProperties.ZINDEX
+      ].includes(change.event.key as any)
     ) {
       return;
     }
-    this.propertyChange$.next({ event: change, layer });
+    this.propertyChange$.next(change);
   }
 
   watchLayer(layer: AnyLayer) {
@@ -84,12 +98,36 @@ export class LayerWatcher extends Watcher {
   }
 
   private _watchLayer(layer: Layer) {
-    layer.ol.on('propertychange', (evt) => this.setPropertyChange(evt, layer));
-    layer.dataSource.ol.on('propertychange', (evt) =>
-      this.setPropertyChange(evt, layer)
+    const displayed$: Observable<LayerWatcherChange> = layer.displayed$.pipe(
+      map((value) => ({
+        event: {
+          key: 'displayed',
+          oldValue: !value,
+          value: layer.displayed
+        },
+        layer
+      }))
     );
+    const subscription = merge(
+      this.createOlEventObservable(layer.ol, layer),
+      this.createOlEventObservable(layer.dataSource.ol, layer),
+      displayed$
+    ).subscribe((change) => this.setPropertyChange(change));
 
     this.layers.push(layer);
+    this.subscriptionsByLayerId.set(layer.id, [subscription]);
+  }
+
+  private createOlEventObservable(
+    target: BaseObject,
+    layer: Layer
+  ): Observable<LayerWatcherChange> {
+    return fromEvent<ObjectEvent>(target, 'propertychange').pipe(
+      map((change) => ({
+        event: { ...change, value: target.get(change.key) },
+        layer
+      }))
+    );
   }
 
   unwatchLayer(layer: AnyLayer) {
@@ -101,11 +139,12 @@ export class LayerWatcher extends Watcher {
   }
 
   private _unwatchLayer(layer: Layer) {
-    layer.ol.un('propertychange', (evt) => this.setPropertyChange(evt, layer));
-    layer.dataSource.ol.un('propertychange', (evt) =>
-      this.setPropertyChange(evt, layer)
-    );
     layer.status$.next(SubjectStatus.Done);
+
+    this.subscriptionsByLayerId.get(layer.id)?.forEach((sub$) => {
+      sub$.unsubscribe();
+      this.subscriptionsByLayerId.delete(layer.id);
+    });
 
     const index = this.layers.indexOf(layer);
     if (index >= 0) {

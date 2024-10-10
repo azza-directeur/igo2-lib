@@ -55,7 +55,6 @@ import {
 import { olStyleToBasicIgoStyle } from '../../../style/shared/vector/conversion.utils';
 import { VectorWatcher } from '../../utils/vector-watcher';
 import { Layer } from './layer';
-import { LayerGroup } from './layer-group';
 import { LayerType } from './layer.interface';
 import { VectorLayerOptions } from './vector-layer.interface';
 
@@ -251,10 +250,10 @@ export class VectorLayer extends Layer {
     return vector;
   }
 
-  remove(): void {
+  remove(soft?: boolean): void {
     this.watcher.unsubscribe();
     this.removeLayerFromIDB();
-    super.remove();
+    super.remove(soft);
   }
 
   private removeLayerFromIDB() {
@@ -392,13 +391,13 @@ export class VectorLayer extends Layer {
     }
   }
 
-  public setMap(map: MapBase | undefined, parent: LayerGroup | undefined) {
+  public init(map: MapBase | undefined) {
     if (map === undefined) {
       this.watcher.unsubscribe();
     } else {
       this.watcher.subscribe(() => void 1);
     }
-    super.setMap(map, parent);
+    super.init(map);
   }
 
   public setExtent(extent: MapExtent): void {

@@ -153,9 +153,14 @@ export class EditionWorkspaceService {
     interface WFSoptions
       extends WFSDataSourceOptions,
         OgcFilterableDataSourceOptions {}
+
+    layer.createLink();
+
     let wks;
     this.layerService
       .createAsyncLayer({
+        title: layer.title,
+        parentId: layer.options.parentId,
         id: wfsLinkId,
         linkedLayers: {
           linkId: wfsLinkId
@@ -175,7 +180,6 @@ export class EditionWorkspaceService {
         showInLayerList: false,
         isIgoInternalLayer: true,
         opacity: 0,
-        title: layer.title,
         minResolution:
           layer.options.workspace?.minResolution || layer.minResolution || 0,
         maxResolution:
@@ -255,7 +259,6 @@ export class EditionWorkspaceService {
         delete dataSource.options.download;
         return wks;
       });
-
     return wks;
   }
 

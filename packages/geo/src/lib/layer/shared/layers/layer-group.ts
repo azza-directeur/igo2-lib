@@ -5,7 +5,6 @@ import { Group } from 'ol/layer.js';
 import { BehaviorSubject, Subscription, combineLatest } from 'rxjs';
 
 import type { MapBase } from '../../../map/shared/map.abstract';
-import { LayerWatcher } from '../../../map/utils/layer-watcher';
 import { type AnyLayer } from './any-layer';
 import { LayerGroupBase } from './layer-base';
 import { type LayerGroupOptions } from './layer-group.interface';
@@ -17,7 +16,6 @@ export class LayerGroup extends LayerGroupBase {
   declare ol: Group;
   expanded: boolean;
   private isInResolutionsRange$$: Subscription;
-  private layerWatcher: LayerWatcher;
   readonly isInResolutionsRange$ = new BehaviorSubject(true);
 
   get saveableOptions(): Partial<LayerGroupOptions> {
@@ -46,8 +44,6 @@ export class LayerGroup extends LayerGroupBase {
   ) {
     super(options);
 
-    this.layerWatcher = new LayerWatcher();
-
     this.children = children ?? [];
 
     this.expanded = options.expanded === undefined ? false : options.expanded;
@@ -61,38 +57,44 @@ export class LayerGroup extends LayerGroupBase {
     super.afterCreated();
   }
 
-  setMap(map: MapBase, parent?: LayerGroup, ignoreChildren?: boolean) {
-    super.setMap(map, parent);
+  init(map: MapBase): void {
+    super.init(map);
+    this.children.forEach((child) => child.init(map));
+  }
+
+  add(parent?: LayerGroupBase, soft?: boolean): void {
+    super.add(parent);
+    if (soft) {
+      return;
+    }
 
     this.setChildrenObserver();
 
-    if (ignoreChildren) {
-      return;
-    }
     this.children.forEach((layer) => {
-      layer.setMap(map, this);
-
-      this.layerWatcher.watchLayer(layer);
+      layer.add(this);
     });
   }
 
-  addChildren(layers: AnyLayer[]) {
-    layers.forEach((layer) => this.addChild(layer));
-  }
+  addChild(...layers: AnyLayer[]): void {
+    this.ol.getLayers().extend(layers.map((layer) => layer.ol));
 
-  addChild(layer: AnyLayer) {
-    this.ol.getLayers().extend([layer.ol]);
-    if (!this.hasChildren(layer)) {
+    layers.forEach((layer) => {
+      if (this.hasChildren(layer)) {
+        return;
+      }
+      layer.addParent(this);
       this.children.push(layer);
-    }
+    });
 
     this.setChildrenObserver();
   }
 
-  remove(): void {
-    super.remove();
-
-    this.removeChildrenObserver();
+  remove(soft: boolean): void {
+    super.remove(soft);
+    if (soft) {
+      return;
+    }
+    this.children.forEach((layer) => layer.remove(false));
   }
 
   removeChild(layer: AnyLayer) {
@@ -105,21 +107,6 @@ export class LayerGroup extends LayerGroupBase {
     layer.options.parentId = null;
 
     this.setChildrenObserver();
-  }
-
-  moveTo(parent?: LayerGroup): void {
-    if (parent == null && this.parent == null) {
-      return;
-    }
-
-    if (this.parent) {
-      if (this.parent.id === parent?.id) {
-        return;
-      }
-    }
-
-    this.remove();
-    this.setMap(this.map, parent, true);
   }
 
   isDescendant(layer: AnyLayer): boolean {
@@ -141,11 +128,6 @@ export class LayerGroup extends LayerGroupBase {
         this.isInResolutionsRange = values.some((value) => value);
       }
     );
-  }
-
-  private removeChildrenObserver(): void {
-    this.isInResolutionsRange$$?.unsubscribe();
-    this.isInResolutionsRange$$ = undefined;
   }
 
   protected createOlLayer(): Group {

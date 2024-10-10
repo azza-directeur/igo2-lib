@@ -9,7 +9,6 @@ import { MVTDataSource } from '../../../datasource/shared/datasources/mvt-dataso
 import type { MapBase } from '../../../map/shared/map.abstract';
 import { TileWatcher } from '../../utils/tile-watcher';
 import { Layer } from './layer';
-import { LayerGroup } from './layer-group';
 import { LayerType } from './layer.interface';
 import { VectorTileLayerOptions } from './vectortile-layer.interface';
 
@@ -126,17 +125,17 @@ export class VectorTileLayer extends Layer {
     };
   }
 
-  public setMap(map: MapBase | undefined, parent: LayerGroup | undefined) {
+  public init(map: MapBase | undefined) {
     if (map === undefined) {
       this.watcher.unsubscribe();
     } else {
       this.watcher.subscribe(() => void 1);
     }
-    super.setMap(map, parent);
+    super.init(map);
   }
 
-  remove(): void {
+  remove(soft?: boolean): void {
     this.watcher.unsubscribe();
-    super.remove();
+    super.remove(soft);
   }
 }

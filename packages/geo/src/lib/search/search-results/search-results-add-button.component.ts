@@ -212,6 +212,7 @@ export class SearchResultAddButtonComponent implements OnInit, OnDestroy {
         this.mouseInsideAdd = true;
         break;
       case 'mouseleave':
+        clearTimeout(this.lastTimeoutRequest);
         if (this.isPreview$.value) {
           this.remove();
           this.isPreview$.next(false);
@@ -277,8 +278,13 @@ export class SearchResultAddButtonComponent implements OnInit, OnDestroy {
       return undefined;
     }
 
-    const oLayer = this.map.getLayerById(this.layer.data.sourceOptions.id);
-    this.map.removeLayer(oLayer);
+    const layer = this.map.layerController.getBySourceId(
+      this.layer.data.sourceOptions.id
+    );
+    if (!layer) {
+      return;
+    }
+    this.map.removeLayer(layer);
   }
 
   isInResolutionsRange(resolution: number) {
