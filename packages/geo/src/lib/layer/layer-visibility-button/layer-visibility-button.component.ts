@@ -9,12 +9,16 @@ import {
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatIconRegistry } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DomSanitizer } from '@angular/platform-browser';
 
-import { CIRCLE_SMALL_ICON, IgoIconComponent } from '@igo2/common/icon';
+import { IgoIconComponent } from '@igo2/common/icon';
 import { IgoLanguageModule } from '@igo2/core/language';
 
 import { AnyLayer } from '../shared/layers/any-layer';
+
+const EYE_CLOSE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>eye-closed</title><path d="M12 17.5C8.2 17.5 4.8 15.4 3.2 12H1C2.7 16.4 7 19.5 12 19.5S21.3 16.4 23 12H20.8C19.2 15.4 15.8 17.5 12 17.5Z" /></svg>`;
 
 @Component({
   selector: 'igo-layer-visibility-button',
@@ -33,8 +37,6 @@ import { AnyLayer } from '../shared/layers/any-layer';
   ]
 })
 export class LayerVisibilityButtonComponent {
-  circleSmallIcon = CIRCLE_SMALL_ICON;
-
   @Input({ required: true }) layer: AnyLayer;
   @Input() tooltip: string;
   @Input() disabled: boolean;
@@ -52,6 +54,16 @@ export class LayerVisibilityButtonComponent {
   }
 
   @Output() visibilityChange = new EventEmitter<Event>();
+
+  constructor(
+    private iconRegistry: MatIconRegistry,
+    private sanitizer: DomSanitizer
+  ) {
+    this.iconRegistry.addSvgIconLiteral(
+      'eye-closed',
+      this.sanitizer.bypassSecurityTrustHtml(EYE_CLOSE_SVG)
+    );
+  }
 
   toggle(event: Event) {
     this.layer.visible = !this.layer.visible;
