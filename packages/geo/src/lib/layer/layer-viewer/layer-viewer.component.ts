@@ -163,38 +163,54 @@ export class LayerViewerComponent implements OnInit {
     return layers;
   }
 
+  /** Recursive */
   private filterSearch(value: string, layers: AnyLayer[]): AnyLayer[] {
     if (!value) {
       return layers;
     }
 
-    return layers.reduce((results: AnyLayer[], layer) => {
-      const metadata = (layer.options as ImageLayerOptions).metadata ?? {};
-      const keywords = metadata.keywordList || [];
-      const layerKeywords = keywords.map((kw: string) => {
-        return kw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      });
-
-      if (layer.title) {
-        const localKeyword = this.normalizeString(value);
-        const layerTitle = this.normalizeString(layer.title);
-        const dataSourceType = isLayerGroup(layer)
-          ? ''
-          : layer.dataSource.options.type || '';
-        const keywordRegex = new RegExp(localKeyword, 'gi');
-        const keywordInList =
-          layerKeywords.find((kw: string) => keywordRegex.test(kw)) !==
-          undefined;
-        if (
-          keywordRegex.test(layerTitle) ||
-          value.toLowerCase() === dataSourceType.toLowerCase() ||
-          keywordInList
-        ) {
-          return results.concat(layer);
+    return [...layers].reduce((results: AnyLayer[], layer) => {
+      const clonedLayer: AnyLayer = layer.clone() as AnyLayer;
+      if (isLayerGroup(clonedLayer)) {
+        if (this.layerHasTerm(value, clonedLayer)) {
+          return results.concat(clonedLayer);
         }
-        return results;
+
+        clonedLayer.children = this.filterSearch(value, [
+          ...clonedLayer.children
+        ]);
+        if (clonedLayer.children.length) {
+          return results.concat(clonedLayer);
+        }
       }
+
+      if (this.layerHasTerm(value, clonedLayer)) {
+        return results.concat(clonedLayer);
+      }
+      return results;
     }, []);
+  }
+
+  private layerHasTerm(term: string, layer: AnyLayer): boolean {
+    const metadata = (layer.options as ImageLayerOptions).metadata ?? {};
+    const keywords = metadata.keywordList || [];
+    const layerKeywords = keywords.map((kw: string) => {
+      return kw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    });
+
+    const localKeyword = this.normalizeString(term);
+    const layerTitle = this.normalizeString(layer.title);
+    const dataSourceType = isLayerGroup(layer)
+      ? ''
+      : layer.dataSource.options.type || '';
+    const keywordRegex = new RegExp(localKeyword, 'gi');
+    const keywordInList =
+      layerKeywords.find((kw: string) => keywordRegex.test(kw)) !== undefined;
+    return (
+      keywordRegex.test(layerTitle) ||
+      term.toLowerCase() === dataSourceType.toLowerCase() ||
+      keywordInList
+    );
   }
 
   private normalizeString(value: string): string {

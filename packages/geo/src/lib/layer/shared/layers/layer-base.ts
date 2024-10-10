@@ -216,6 +216,11 @@ export abstract class LayerBase {
     this.reset(parent);
   }
 
+  clone(): LayerBase {
+    const clone = Object.assign({}, this);
+    return Object.setPrototypeOf(clone, LayerBase.prototype);
+  }
+
   private initDisplayed$$(): void {
     this.displayed$$?.unsubscribe();
 
