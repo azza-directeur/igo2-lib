@@ -10,6 +10,11 @@
       flex-direction: row-reverse;
       justify-content: flex-end;
     }
+
+    .mat-mdc-list-item-title {
+      font-size: 12px !important;
+    }
+
     .mdc-list-item__end {
       margin-left: 8px;
       margin-right: 4px;
