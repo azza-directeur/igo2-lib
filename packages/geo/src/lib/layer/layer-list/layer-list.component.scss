@@ -1,11 +1,3 @@
-:host {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow-x: hidden;
-}
-
 igo-layer-group,
 igo-layer-item {
   ::ng-deep .list-actions {

@@ -17,7 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { IgoLanguageModule } from '@igo2/core/language';
 
-import { BehaviorSubject, EMPTY, combineLatest, timer } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, combineLatest, timer } from 'rxjs';
 import { debounce, debounceTime } from 'rxjs/operators';
 
 import type { MapBase } from '../../map/shared/map.abstract';
@@ -62,6 +62,7 @@ import { LayerToolMode, LayerViewerOptions } from './layer-viewer.interface';
 })
 export class LayerViewerComponent implements OnInit {
   layers: AnyLayer[];
+  baselayers: AnyLayer[];
   keyword$ = new BehaviorSubject<string>(undefined);
   mode: LayerToolMode;
   isDragDropDisabled: boolean;
@@ -69,6 +70,7 @@ export class LayerViewerComponent implements OnInit {
   @Input({ required: true }) map: MapBase;
   @Input() options: LayerViewerOptions;
   @Input() isDesktop: boolean;
+  @Input() excludeBaseLayers: boolean;
 
   @Output() appliedFilterAndSort = new EventEmitter<LayerListControlsOptions>();
 
@@ -102,13 +104,30 @@ export class LayerViewerComponent implements OnInit {
    * @internal
    */
   ngOnInit(): void {
-    combineLatest([this.layerController.layers$, this.keyword$])
+    const baseObs$: [Observable<AnyLayer[]>, Observable<string>] = [
+      this.layerController.layers$,
+      this.keyword$
+    ];
+
+    const otherObs$: Observable<AnyLayer[]>[] = [];
+    if (!this.excludeBaseLayers) {
+      otherObs$.push(this.layerController.baseLayers$);
+    }
+
+    combineLatest([...baseObs$, ...otherObs$])
       .pipe(debounceTime(10))
-      .subscribe(([layers, keyword]) => {
-        if (!layers) {
-          return;
+      .subscribe(([layers, keyword, baselayers]) => {
+        if (layers) {
+          this.layers = this.computeLayers(layers, keyword);
         }
-        this.layers = this.computeLayers(layers, keyword);
+
+        if (baselayers) {
+          const baselayersInViewer = baselayers.filter(
+            (layer) => layer.showInLayerList
+          );
+          this.baselayers = this.computeLayers(baselayersInViewer, keyword);
+        }
+
         this.cdr.markForCheck();
       });
     this.keyword$
@@ -129,11 +148,6 @@ export class LayerViewerComponent implements OnInit {
     this.keyword$.next(undefined);
   }
 
-  private computeLayers(layers: AnyLayer[], keyword: string): AnyLayer[] {
-    const layersOut = this.filterLayers([...layers], keyword);
-    return this.sortLayersByZindex(layersOut);
-  }
-
   onVisibilityOnlyChange(): void {
     this.layers = this.computeLayers(
       [...this.layerController.treeLayers],
@@ -148,6 +162,52 @@ export class LayerViewerComponent implements OnInit {
 
   onSearchChange(value: string | undefined): void {
     this.keyword$.next(value);
+  }
+
+  toggleSelectionMode(active: boolean): void {
+    if (!active) {
+      this.layerController.clearSelection();
+    }
+    this.mode = active ? 'selection' : undefined;
+  }
+
+  toggleAllRows() {
+    const isAllSelected = this.isAllSelected();
+    this.layerController.clearSelection();
+    if (isAllSelected) {
+      return;
+    }
+    this.layerController.select(...this.layerController.treeLayers);
+  }
+
+  isAllSelected(): boolean {
+    const numSelected = this.layerController.selected.length;
+    const numRows = this.layerController.treeLayers.length;
+    return (
+      numSelected >= numRows &&
+      this.layerController.treeLayers.every((layer) =>
+        this.layerController.isSelected(layer)
+      )
+    );
+  }
+
+  isScrolledIntoView(elemSource, elem) {
+    const docViewTop = elemSource.scrollTop;
+    const docViewBottom = docViewTop + elemSource.clientHeight;
+
+    const elemTop = elem.offsetTop;
+    const elemBottom = elemTop + elem.clientHeight;
+    return elemBottom <= docViewBottom && elemTop >= docViewTop;
+  }
+
+  createGroup(group: LayerGroup): void {
+    this.map.layerController.add(group);
+    this.cdr.markForCheck();
+  }
+
+  private computeLayers(layers: AnyLayer[], keyword: string): AnyLayer[] {
+    let layersOut = this.filterLayers([...layers], keyword);
+    return this.sortLayersByZindex(layersOut);
   }
 
   private filterLayers(layers: AnyLayer[], keyword: string): AnyLayer[] {
@@ -229,46 +289,5 @@ export class LayerViewerComponent implements OnInit {
         }
         return layer;
       });
-  }
-
-  toggleSelectionMode(active: boolean): void {
-    if (!active) {
-      this.layerController.clearSelection();
-    }
-    this.mode = active ? 'selection' : undefined;
-  }
-
-  toggleAllRows() {
-    const isAllSelected = this.isAllSelected();
-    this.layerController.clearSelection();
-    if (isAllSelected) {
-      return;
-    }
-    this.layerController.select(...this.layerController.treeLayers);
-  }
-
-  isAllSelected(): boolean {
-    const numSelected = this.layerController.selected.length;
-    const numRows = this.layerController.treeLayers.length;
-    return (
-      numSelected >= numRows &&
-      this.layerController.treeLayers.every((layer) =>
-        this.layerController.isSelected(layer)
-      )
-    );
-  }
-
-  isScrolledIntoView(elemSource, elem) {
-    const docViewTop = elemSource.scrollTop;
-    const docViewBottom = docViewTop + elemSource.clientHeight;
-
-    const elemTop = elem.offsetTop;
-    const elemBottom = elemTop + elem.clientHeight;
-    return elemBottom <= docViewBottom && elemTop >= docViewTop;
-  }
-
-  createGroup(group: LayerGroup): void {
-    this.map.addLayer(group);
-    this.cdr.markForCheck();
   }
 }

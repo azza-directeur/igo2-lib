@@ -102,6 +102,10 @@ export class MapDetailsToolComponent implements OnInit {
     return this.map.layerController.all$;
   }
 
+  get excludeBaseLayers(): boolean {
+    return this.layerListControls.excludeBaseLayers || false;
+  }
+
   get layerFilterAndSortOptions(): any {
     const filterSortOptions = Object.assign(
       {

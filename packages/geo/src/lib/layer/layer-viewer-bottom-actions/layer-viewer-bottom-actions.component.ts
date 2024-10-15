@@ -17,7 +17,7 @@ import type { MapBase } from '../../map/shared/map.abstract';
 import { LayerListToolService } from '../layer-list-tool';
 import { LayerController } from '../shared/layer-controller';
 import { AnyLayer, LayerGroup } from '../shared/layers';
-import { isLayerGroup, isLayerItem } from '../utils';
+import { isBaseLayer, isLayerGroup, isLayerItem } from '../utils/layer.utils';
 
 @Component({
   selector: 'igo-layer-viewer-bottom-actions',
@@ -159,12 +159,18 @@ export class LayerViewerBottomActionsComponent {
   }
 
   private isLowerable(layer: AnyLayer): boolean {
+    if (isBaseLayer(layer)) {
+      return false;
+    }
     const recipient = this.controller.getLayerRecipient(layer);
     const index = recipient.findIndex((lay) => lay.id === layer.id);
     return index < recipient.length - 1;
   }
 
   private isRaisable(layer: AnyLayer): boolean {
+    if (isBaseLayer(layer)) {
+      return false;
+    }
     const recipient = this.controller.getLayerRecipient(layer);
     const index = recipient.findIndex((lay) => lay.id === layer.id);
     return index > 0;

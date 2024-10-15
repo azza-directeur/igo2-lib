@@ -33,8 +33,6 @@ const ZINDEX_MIN = 10;
 export class LayerController extends LayerSelectionModel {
   private tree: Tree<AnyLayer>;
 
-  private _baseLayers: Layer[] = [];
-
   /** Selection, Hovering, every internalLayer not in the tree is here */
   private _systemLayers: AnyLayer[] = [];
 
@@ -50,6 +48,7 @@ export class LayerController extends LayerSelectionModel {
     .asObservable()
     .pipe(map(() => this.layersFlattened));
 
+  private _baseLayers: Layer[] = [];
   private _baseLayers$ = new BehaviorSubject<Layer[] | undefined>(undefined);
   baseLayers$ = this._baseLayers$.asObservable();
 
@@ -333,10 +332,20 @@ export class LayerController extends LayerSelectionModel {
   private _remove(layer: AnyLayer): AnyLayer | AnyLayer[] {
     if (this.isSystemLayer(layer)) {
       this.removeSystemLayer(layer);
+    } else if (isBaseLayer(layer)) {
+      this.removeBaselayer(layer);
     }
 
     layer.remove(false);
     return layer;
+  }
+
+  private removeBaselayer(layer: AnyLayer) {
+    const index = this._baseLayers.findIndex((lyr) => lyr.id === layer.id);
+    if (index === -1) {
+      return;
+    }
+    this._baseLayers.splice(index, 1);
   }
 
   private removeSystemLayer(layer: AnyLayer) {

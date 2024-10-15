@@ -87,6 +87,10 @@ export class MapToolComponent implements OnInit {
     return this.mapState.map;
   }
 
+  get excludeBaseLayers(): boolean {
+    return this.layerListControls.excludeBaseLayers || false;
+  }
+
   get layerFilterAndSortOptions(): any {
     const filterSortOptions = Object.assign(
       {

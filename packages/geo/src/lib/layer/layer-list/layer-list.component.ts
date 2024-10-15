@@ -182,7 +182,9 @@ export class LayerListComponent {
   getLayerIcon(layer: Layer): string | IconSvg {
     const type = this.getLayerType(layer);
     return type === 'raster'
-      ? 'image'
+      ? layer.baseLayer
+        ? 'wallpaper'
+        : 'image'
       : type === 'measure'
         ? 'square_foot'
         : type === 'draw'
@@ -191,9 +193,14 @@ export class LayerListComponent {
   }
 
   dropNode({ node, ref, position }: TreeDropEvent<AnyLayer>): void {
-    let nodesToDrop = this.controller.hasSelection
-      ? this.controller.selected
-      : [node.data];
+    let nodesToDrop = [node.data];
+
+    if (this.controller.hasSelection) {
+      // The selection could contains data from the outside the TreeController
+      nodesToDrop = this.controller.selected.filter(
+        (layer) => !!this.findNodeByLayerId(layer.id)
+      );
+    }
 
     if (node.isGroup) {
       nodesToDrop = nodesToDrop.filter(

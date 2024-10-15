@@ -37,7 +37,9 @@
 <div class="layer-view">
   <ng-container
     *ngIf="
-      layers?.length !== 0 || unavailableLayers?.length !== 0;
+      layers?.length !== 0 ||
+        unavailableLayers?.length !== 0 ||
+        baselayers?.length !== 0;
       else showEmptyList
     "
   >
@@ -46,13 +48,26 @@
       [layersOptions]="unavailableLayers"
     ></igo-layer-unavailable-list>
 
-    <igo-layer-list
-      [controller]="map.layerController"
-      [layers]="layers"
-      [viewerOptions]="layerViewerOptions"
-      [isDragDropDisabled]="isDragDropDisabled"
-      [isDesktop]="isDesktop"
-    ></igo-layer-list>
+    <div class="layer-list-container">
+      <igo-layer-list
+        [controller]="map.layerController"
+        [layers]="layers"
+        [viewerOptions]="layerViewerOptions"
+        [isDragDropDisabled]="isDragDropDisabled"
+        [isDesktop]="isDesktop"
+      ></igo-layer-list>
+
+      <div *ngIf="!excludeBaseLayers && baselayers?.length">
+        <mat-divider></mat-divider>
+        <igo-layer-list
+          [controller]="map.layerController"
+          [layers]="baselayers"
+          [viewerOptions]="layerViewerOptions"
+          isDragDropDisabled="true"
+          [isDesktop]="isDesktop"
+        ></igo-layer-list>
+      </div>
+    </div>
   </ng-container>
 
   <ng-template #showEmptyList>

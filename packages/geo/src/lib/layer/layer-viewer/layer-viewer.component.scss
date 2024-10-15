@@ -11,6 +11,14 @@
   overflow-y: auto;
 }
 
+.layer-list-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-x: hidden;
+}
+
 .header-item {
   display: flex;
   align-items: center;
