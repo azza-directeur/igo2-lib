@@ -101,6 +101,7 @@ export class LayerListComponent {
   private _layers: AnyLayer[];
 
   @Input() isDesktop: boolean;
+  @Input() isDragDropDisabled: boolean;
   @Input() selectAll: boolean;
   @Input() viewerOptions: LayerViewerOptions;
 

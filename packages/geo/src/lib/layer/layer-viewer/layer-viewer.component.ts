@@ -64,6 +64,7 @@ export class LayerViewerComponent implements OnInit {
   layers: AnyLayer[];
   keyword$ = new BehaviorSubject<string>(undefined);
   mode: LayerToolMode;
+  isDragDropDisabled: boolean;
 
   @Input({ required: true }) map: MapBase;
   @Input() options: LayerViewerOptions;
@@ -117,6 +118,7 @@ export class LayerViewerComponent implements OnInit {
         })
       )
       .subscribe((keyword) => {
+        this.isDragDropDisabled = !!keyword;
         this.appliedFilterAndSort.emit({
           keyword
         });

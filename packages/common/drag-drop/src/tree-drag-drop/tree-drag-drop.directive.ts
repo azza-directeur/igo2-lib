@@ -12,7 +12,8 @@ import {
   OnDestroy,
   Output,
   QueryList,
-  Renderer2
+  Renderer2,
+  booleanAttribute
 } from '@angular/core';
 import { MatTreeNode } from '@angular/material/tree';
 
@@ -63,6 +64,13 @@ export class TreeDragDropDirective implements AfterContentInit, OnDestroy {
   /** The default is 5 */
   @Input() maxLevel = 5;
 
+  @Input({ transform: booleanAttribute })
+  set treeDragDropIsDisabled(disabled: boolean) {
+    this.isDisabled = disabled;
+    disabled ? this.removeAllListener() : this.addAllListener();
+  }
+  private isDisabled = false;
+
   @Output() dragStart = new EventEmitter<TreeFlatNode>();
 
   // eslint-disable-next-line @angular-eslint/no-output-on-prefix
@@ -103,17 +111,12 @@ export class TreeDragDropDirective implements AfterContentInit, OnDestroy {
 
   ngAfterContentInit(): void {
     this.nodes.changes.subscribe(() => {
-      const nodes = this.nodes.toArray();
-      if (this.nodesListeners) {
-        this.removeListener();
-      }
-
-      this.nodesListeners = nodes.map((node) => this.addListener(node));
+      this.addAllListener();
     });
   }
 
   ngOnDestroy(): void {
-    this.removeListener();
+    this.removeAllListener();
   }
 
   onDragStart(node: TreeFlatNode): void {
@@ -157,7 +160,7 @@ export class TreeDragDropDirective implements AfterContentInit, OnDestroy {
   }
 
   drop(event: DragEvent): void {
-    if (!this.dropNodeTarget) {
+    if (!this.dropNodeTarget || this.isDisabled) {
       return;
     }
 
@@ -231,6 +234,18 @@ export class TreeDragDropDirective implements AfterContentInit, OnDestroy {
     this.renderer.removeClass(node['_elementRef'].nativeElement, className);
   }
 
+  private addAllListener(): void {
+    if (this.isDisabled) {
+      return;
+    }
+    const nodes = this.nodes?.toArray();
+    if (this.nodesListeners) {
+      this.removeAllListener();
+    }
+
+    this.nodesListeners = nodes?.map((node) => this.addListener(node));
+  }
+
   private addListener(node: MatTreeNode<TreeFlatNode>): DragNodeListeners {
     const element = node['_elementRef'].nativeElement as HTMLElement;
     const listeners: [string, EventListenerOrEventListenerObject][] = [
@@ -247,12 +262,14 @@ export class TreeDragDropDirective implements AfterContentInit, OnDestroy {
     return { element, listeners };
   }
 
-  private removeListener(): void {
+  private removeAllListener(): void {
     this.nodesListeners?.forEach(({ element, listeners }) => {
       listeners.forEach(([type, listener]) => {
+        element.setAttribute('draggable', 'false');
         element.removeEventListener(type, listener);
       });
     });
+    this.nodesListeners = null;
   }
 
   private setHighlightedNode(node: TreeFlatNode): void {

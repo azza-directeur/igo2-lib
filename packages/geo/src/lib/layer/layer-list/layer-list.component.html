@@ -1,6 +1,7 @@
 <mat-tree
   [class.--not-desktop]="!isDesktop"
   igoTreeDragDrop
+  [treeDragDropIsDisabled]="isDragDropDisabled"
   [maxLevel]="viewerOptions?.group?.maxHierarchyLevel"
   [dataSource]="dataSource"
   [treeControl]="treeControl"
