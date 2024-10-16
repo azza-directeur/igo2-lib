@@ -1,4 +1,4 @@
-import { Tree } from '@igo2/utils';
+import { TREE_SEPERATOR, Tree } from '@igo2/utils';
 
 import {
   BehaviorSubject,
@@ -322,7 +322,7 @@ export class LayerController extends LayerSelectionModel {
     }
 
     const parent: LayerGroup | undefined = layer.parentId
-      ? (this.getById(layer.parentId) as LayerGroup)
+      ? (this.getById(layer.parentId.split(TREE_SEPERATOR).pop()) as LayerGroup)
       : undefined;
     layer.add(parent);
 
@@ -407,6 +407,7 @@ export class LayerController extends LayerSelectionModel {
   }
 
   private notify(): void {
+    this.layersFlattened = this.tree.flattened;
     this._layers$.next(this.treeLayers);
     this._baseLayers$.next(this.baseLayers);
   }

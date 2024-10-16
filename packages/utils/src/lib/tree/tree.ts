@@ -5,6 +5,8 @@ interface ITreeConfig<T> {
   reverse?: boolean;
 }
 
+export const TREE_SEPERATOR = '.';
+
 export class Tree<T> {
   private _data: T[];
 

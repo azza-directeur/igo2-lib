@@ -37,9 +37,9 @@
 <div class="layer-view">
   <ng-container
     *ngIf="
-      layers?.length !== 0 ||
-        unavailableLayers?.length !== 0 ||
-        baselayers?.length !== 0;
+      layers?.length > 0 ||
+        unavailableLayers?.length > 0 ||
+        baselayers?.length > 0;
       else showEmptyList
     "
   >
