@@ -1,9 +1,11 @@
 import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
+  OnInit,
   Output
 } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -36,7 +38,9 @@ const EYE_CLOSE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 2
     IgoIconComponent
   ]
 })
-export class LayerVisibilityButtonComponent {
+export class LayerVisibilityButtonComponent implements OnInit {
+  hiddenByParent?: boolean;
+
   @Input({ required: true }) layer: AnyLayer;
   @Input() tooltip: string;
   @Input() disabled: boolean;
@@ -57,12 +61,20 @@ export class LayerVisibilityButtonComponent {
 
   constructor(
     private iconRegistry: MatIconRegistry,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef
   ) {
     this.iconRegistry.addSvgIconLiteral(
       'eye-closed',
       this.sanitizer.bypassSecurityTrustHtml(EYE_CLOSE_SVG)
     );
+  }
+
+  ngOnInit(): void {
+    this.layer.parent?.displayed$.subscribe((displayed) => {
+      this.hiddenByParent = !displayed;
+      this.cdr.markForCheck();
+    });
   }
 
   toggle(event: Event) {

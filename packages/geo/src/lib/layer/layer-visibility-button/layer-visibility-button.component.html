@@ -12,12 +12,17 @@
   (click)="toggle($event)"
 >
   <igo-icon
+    matBadge="?"
+    matBadgeColor="accent"
+    matBadgeSize="small"
+    matBadgePosition="after"
+    [matBadgeHidden]="!showQueryBadge"
     [icon]="
-      disabled && layer.visible
-        ? 'eye-closed'
-        : layer.visible
-          ? 'visibility'
-          : 'visibility_off'
+      layer.visible
+        ? hiddenByParent
+          ? 'eye-closed'
+          : 'visibility'
+        : 'visibility_off'
     "
     iconPositionEnd
   />
