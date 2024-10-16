@@ -11,11 +11,9 @@ import {
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatIconRegistry } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DomSanitizer } from '@angular/platform-browser';
 
-import { IgoIconComponent } from '@igo2/common/icon';
+import { IconSvg, IgoIconComponent } from '@igo2/common/icon';
 import { IgoLanguageModule } from '@igo2/core/language';
 
 import { AnyLayer } from '../shared/layers/any-layer';
@@ -39,6 +37,10 @@ const EYE_CLOSE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 2
   ]
 })
 export class LayerVisibilityButtonComponent implements OnInit {
+  eyeClosedSvg: IconSvg = {
+    name: 'eye-closed',
+    svg: EYE_CLOSE_SVG
+  };
   hiddenByParent?: boolean;
 
   @Input({ required: true }) layer: AnyLayer;
@@ -59,16 +61,7 @@ export class LayerVisibilityButtonComponent implements OnInit {
 
   @Output() visibilityChange = new EventEmitter<Event>();
 
-  constructor(
-    private iconRegistry: MatIconRegistry,
-    private sanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.iconRegistry.addSvgIconLiteral(
-      'eye-closed',
-      this.sanitizer.bypassSecurityTrustHtml(EYE_CLOSE_SVG)
-    );
-  }
+  constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.layer.parent?.displayed$.subscribe((displayed) => {
