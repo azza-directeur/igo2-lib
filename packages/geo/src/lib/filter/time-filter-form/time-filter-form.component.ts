@@ -8,6 +8,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { MatButtonModule } from '@angular/material/button';
 import {
   DateAdapter,
@@ -27,7 +28,10 @@ import { IgoLanguageModule } from '@igo2/core/language';
 
 import olSourceImageWMS from 'ol/source/ImageWMS';
 
-import { MatDatetimepickerModule } from '@mat-datetimepicker/core';
+import {
+  MatDatetimepickerModule,
+  MatNativeDatetimeModule
+} from '@mat-datetimepicker/core';
 import { default as moment } from 'moment';
 
 import { Layer } from '../../layer';
@@ -43,6 +47,8 @@ import { TimeFilterOptions } from '../shared/time-filter.interface';
     NgIf,
     MatFormFieldModule,
     MatDatetimepickerModule,
+    MatMomentDateModule,
+    MatNativeDatetimeModule,
     MatNativeDateModule, // For the DateAdapter provider
     MatInputModule,
     FormsModule,

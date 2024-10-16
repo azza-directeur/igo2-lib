@@ -72,6 +72,17 @@ export class Linked {
           return;
         }
         this.childrenByProperty.set(property, layers.concat(layer));
+
+        if (layer[property] !== this.layer[property]) {
+          this.handleChange({
+            event: {
+              key: property,
+              oldValue: layer[property],
+              value: this.layer[property]
+            },
+            layer: this.layer
+          });
+        }
       });
     });
   }

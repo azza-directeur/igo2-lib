@@ -65,7 +65,7 @@ export class LayerController extends LayerSelectionModel {
 
     this.all$ = combineLatest([this.layersFlattened$, this.baseLayers$]).pipe(
       debounceTime(10),
-      map((_) => this.all)
+      map(() => this.all)
     );
 
     this.tree = new Tree(layers, {
@@ -98,7 +98,7 @@ export class LayerController extends LayerSelectionModel {
   }
 
   add(...layers: AnyLayer[]): void {
-    let offset = 0;
+    const offset = 0;
 
     const addedLayers = layers
       .map((layer) => this.handleAdd(layer, offset))
@@ -136,6 +136,9 @@ export class LayerController extends LayerSelectionModel {
 
   removeSystemToTree(id: string): void {
     const layer = this.getById(id);
+    if (!layer) {
+      return;
+    }
     layer.options.showInLayerList = false;
     if (!this.tree.exist(layer)) {
       return;
@@ -214,7 +217,7 @@ export class LayerController extends LayerSelectionModel {
 
   lower(...layers: AnyLayer[]): void {
     const position = this.getPosition(layers[layers.length - 1]);
-    let index = position.pop();
+    const index = position.pop();
     this.moveTo(position.concat(index + 2), ...layers); // +2 because we use moveBefore
     this._internalMove();
   }
@@ -251,9 +254,7 @@ export class LayerController extends LayerSelectionModel {
   }
 
   getLayerRecipient(layer: AnyLayer): AnyLayer[] {
-    return layer.parent
-      ? this.tree.getChildren(layer.parent as any)
-      : this.treeLayers;
+    return layer.parent ? this.tree.getChildren(layer.parent) : this.treeLayers;
   }
 
   private handleMove(layers: AnyLayer[], parent?: LayerGroup): void {

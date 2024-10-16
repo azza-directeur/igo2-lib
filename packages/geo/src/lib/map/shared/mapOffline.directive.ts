@@ -77,18 +77,6 @@ export class MapOfflineDirective implements AfterViewInit {
     });
   }
 
-  private handleNonOfflinableLayerResolution(
-    online: boolean,
-    forcedOffline: boolean,
-    layer: AnyLayer
-  ) {
-    if (!online || forcedOffline) {
-      layer.maxResolution = 0;
-    } else if (online || !forcedOffline) {
-      layer.maxResolution = layer.options.maxResolution || Infinity;
-    }
-  }
-
   private handleLayersOnlineState(
     online: boolean,
     forcedOffline: boolean,
@@ -127,13 +115,7 @@ export class MapOfflineDirective implements AfterViewInit {
           (layer.ol.getSource() as any).setUrl(
             offlinableByUrlSourceOptions.url
           );
-        } else {
-          this.handleNonOfflinableLayerResolution(online, forcedOffline, layer);
         }
-      } else {
-        // FOR ALL NON OFFLINABLE SOURCE (i.e. EXCEPT PREVIOUS);
-        this.handleNonOfflinableLayerResolution(online, forcedOffline, layer);
-        return;
       }
     });
   }

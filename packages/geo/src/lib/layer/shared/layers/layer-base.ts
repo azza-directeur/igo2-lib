@@ -168,6 +168,7 @@ export abstract class LayerBase {
     this.map = map;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   add(parent?: LayerGroupBase, _soft?: boolean): void {
     this.addParent(parent);
     this.parent ? this.parent.addChild(this) : this.map.ol.addLayer(this.ol);
@@ -187,6 +188,7 @@ export abstract class LayerBase {
     this.initDisplayed$$();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   remove(_soft?: boolean): void {
     if (!this.map) {
       console.error(`No map for ${this.title}`);
