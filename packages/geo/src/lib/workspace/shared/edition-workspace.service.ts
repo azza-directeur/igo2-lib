@@ -161,6 +161,7 @@ export class EditionWorkspaceService {
       .createAsyncLayer({
         title: layer.title,
         parentId: layer.options.parentId,
+        visible: layer.visible,
         id: wfsLinkId,
         linkedLayers: {
           linkId: wfsLinkId

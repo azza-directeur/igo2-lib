@@ -140,6 +140,7 @@ export class WmsWorkspaceService {
         title: layer.title,
         parentId: layer.options.parentId,
         isIgoInternalLayer: true,
+        visible: layer.visible,
         id: wfsLinkId,
         linkedLayers: {
           linkId: wfsLinkId
